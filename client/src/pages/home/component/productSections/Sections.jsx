@@ -1,0 +1,189 @@
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Heart, HeartIcon } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useGetProductsQuery } from "../../../../services/productsApi";
+
+const ProductShowcase = ({ title }) => {
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const [wishlist, setWishlist] = useState([]);
+
+  const queryParams =
+    title === "Trending"
+      ? { tags: title, limit: 6, page: 1 }
+      : { category: title, limit: 6, page: 1 };
+
+  const { data, error, isLoading } = useGetProductsQuery(queryParams);
+  const products = data?.products || [];
+
+  // Get wishlist on load
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      if (!user?.uid) return;
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/wishlists/${user.uid}`
+        );
+        const data = await res.json();
+        const productIds = data.products?.map((item) => item.product._id) || [];
+        setWishlist(productIds);
+      } catch (err) {
+        console.error("Error fetching wishlist:", err);
+      }
+    };
+
+    fetchWishlist();
+  }, [user?.uid]);
+
+  // Toggle wishlist handler
+  const toggleWishlist = async (productId) => {
+    if (!user?.uid) return alert("Please login to add to wishlist");
+
+    const isInWishlist = wishlist.includes(productId);
+    const endpoint = isInWishlist ? "remove" : "add";
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/wishlists/${endpoint}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.uid, productId }),
+        }
+      );
+
+      const result = await res.json();
+      if (!res.ok) return alert(result.message);
+
+      const updated = isInWishlist
+        ? wishlist.filter((id) => id !== productId)
+        : [...wishlist, productId];
+      setWishlist(updated);
+    } catch (err) {
+      console.error("Wishlist error:", err);
+      alert("Something went wrong.");
+    }
+  };
+
+  return (
+    <>
+      <style>{`
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap");
+      `}</style>
+
+      <div className="py-16 px-6">
+        <div className="max-w-6xl mx-auto">
+          {/* Section Heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-20"
+          >
+            <h2
+              className="text-5xl text-gray-900 mb-4 tracking-tight"
+              style={{ fontFamily: "Playfair Display, serif", fontWeight: 400 }}
+            >
+              {title}
+            </h2>
+            <div className="w-16 h-px bg-gray-300 mx-auto"></div>
+          </motion.div>
+
+          {/* Product Grid */}
+          <div className="grid grid-cols-2 min-[420px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+            {products.map((product, index) => (
+              <motion.div
+                key={product._id}
+                initial={{ opacity: 0, y: 60 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{
+                  duration: 0.6,
+                  delay: index * 0.1,
+                  ease: "easeInOut",
+                }}
+                className="group cursor-pointer bg-white rounded-2xl transition-shadow duration-300"
+                onClick={() =>
+                  navigate(`/products/${product._id}`, { state: product })
+                }
+              >
+                {/* Product Image */}
+                <div className="relative mb-4 overflow-hidden rounded-t-2xl">
+                  <div className="aspect-square w-full overflow-hidden relative group">
+                    <motion.img
+                      src={product.image[0]}
+                      alt={product.name}
+                      className="absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 opacity-100 group-hover:opacity-0"
+                    />
+                    <motion.img
+                      src={product.image[1]}
+                      alt={product.name}
+                      className="absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
+                    />
+                  </div>
+
+                  {/* Wishlist Button */}
+                  <div className="absolute top-2 right-2 z-10">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevent navigation
+                        toggleWishlist(product._id);
+                      }}
+                      className="w-8 h-8 sm:w-9 sm:h-9 bg-white rounded-full flex items-center justify-center shadow hover:shadow-md hover:scale-105 transition-transform duration-200"
+                    >
+                      {wishlist.includes(product._id) ? (
+                        <HeartIcon className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 fill-red-500" />
+                      ) : (
+                        <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Product Info */}
+                <div className="px-3 pb-5 text-center space-y-1">
+                  <h3 className="text-sm sm:text-base font-medium text-gray-900 truncate">
+                    {product.name}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-500 line-clamp-2">
+                    {product.description}
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    ₹{product.discountedPrice || product.price}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* View All */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="text-center mt-16"
+          >
+            <motion.div whileHover={{ y: -2 }} className="inline-block">
+              <Link
+                to="/products"
+                state={
+                  title === "Trending" ? { tags: title } : { category: title }
+                }
+                className="text-gray-900 text-sm tracking-wider border-b border-gray-400 pb-1 hover:border-gray-900 transition-colors duration-300"
+                style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}
+              >
+                View All {title}
+              </Link>
+            </motion.div>
+          </motion.div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default ProductShowcase;
