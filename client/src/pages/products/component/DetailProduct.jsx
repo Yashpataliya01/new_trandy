@@ -27,12 +27,6 @@ const DetailProduct = () => {
     if (product?.image?.[0]) setSelectedImage(product.image[0]);
   }, [product]);
 
-  const discountPercentage = product?.discountedPrice
-    ? Math.round(
-        ((product.price - product.discountedPrice) / product.price) * 100
-      )
-    : 0;
-
   // ✅ Fetch Wishlist State
   useEffect(() => {
     const fetchWishlist = async () => {

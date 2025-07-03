@@ -5,6 +5,10 @@ import { AppContext } from "../../context/AuthContext.jsx";
 const Cart = () => {
   const [cartData, setCartData] = useState(null);
   const [quantities, setQuantities] = useState({});
+  const [discounts, setDiscounts] = useState([]);
+  const [discountCode, setDiscountCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState(null);
+  const [discountError, setDiscountError] = useState(null);
   const { setFavcart } = useContext(AppContext);
 
   useEffect(() => {
@@ -15,15 +19,13 @@ const Cart = () => {
     link.rel = "stylesheet";
     document.head.appendChild(link);
 
-    // Fetch cart data from API
+    // Fetch cart data
     const user = JSON.parse(localStorage.getItem("user"));
     if (user?.uid) {
       fetch(`http://localhost:5000/api/carts/getCartByUser/${user.uid}`)
         .then((res) => res.json())
         .then((data) => {
           setCartData(data);
-
-          // Initialize quantities from API data
           const initialQuantities = {};
           data.products?.forEach((item, index) => {
             initialQuantities[index] = item.quantity;
@@ -34,18 +36,39 @@ const Cart = () => {
           console.error("Error fetching cart data:", error);
         });
     }
+
+    // Fetch discounts
+    fetch("http://localhost:5000/api/discounts")
+      .then((res) => res.json())
+      .then((data) => {
+        setDiscounts(data.data || []);
+      })
+      .catch((error) => {
+        console.error("Error fetching discounts:", error);
+      });
   }, []);
+
+  const handleApplyDiscount = () => {
+    setDiscountError(null);
+    const discount = discounts.find(
+      (d) => d.name.toLowerCase() === discountCode.trim().toLowerCase()
+    );
+    if (discount) {
+      setAppliedDiscount(discount);
+    } else {
+      setDiscountError("Invalid discount code");
+      setAppliedDiscount(null);
+    }
+  };
 
   const updateQuantity = async (index, newQuantity) => {
     if (newQuantity < 1) return;
 
-    // Get user and product info
     const user = JSON.parse(localStorage.getItem("user"));
     const product = cartData.products[index];
 
     if (!user?.uid || !product) return;
 
-    // Optimistically update UI first
     setQuantities((prev) => ({
       ...prev,
       [index]: newQuantity,
@@ -70,19 +93,12 @@ const Cart = () => {
       if (!response.ok) {
         throw new Error("Failed to update quantity");
       }
-
-      const data = await response.json();
-      console.log("Quantity updated successfully:", data.message);
     } catch (error) {
       console.error("Error updating quantity:", error);
-
-      // Revert optimistic update on error
       setQuantities((prev) => ({
         ...prev,
         [index]: cartData.products[index].quantity,
       }));
-
-      // You could show a toast notification here
       alert("Failed to update quantity. Please try again.");
     }
   };
@@ -92,29 +108,24 @@ const Cart = () => {
 
     if (!user?.uid || !item?.product?._id) return;
 
-    // Optimistically remove item from UI
     const updatedProducts = cartData.products.filter((_, i) => i !== index);
     setCartData((prev) => ({
       ...prev,
       products: updatedProducts,
     }));
 
-    // Update quantities state to remove the deleted item's quantity
     setQuantities((prev) => {
       const newQuantities = { ...prev };
       delete newQuantities[index];
-
-      // Reindex remaining quantities
       const reindexed = {};
       Object.keys(newQuantities).forEach((key) => {
         const oldIndex = parseInt(key);
         const newIndex = oldIndex > index ? oldIndex - 1 : oldIndex;
         reindexed[newIndex] = newQuantities[key];
       });
-
       return reindexed;
     });
-    setFavcart(cartData.products.length - 1);
+    setFavcart(updatedProducts.length);
 
     try {
       const response = await fetch(
@@ -134,38 +145,36 @@ const Cart = () => {
       if (!response.ok) {
         throw new Error("Failed to remove item");
       }
-
-      const data = await response.json();
-      console.log("Item removed successfully:", data.message);
     } catch (error) {
       console.error("Error removing item:", error);
-
-      // Revert optimistic update on error
       setCartData((prev) => ({
         ...prev,
         products: [...cartData.products],
       }));
-
-      // Restore original quantities
       const originalQuantities = {};
       cartData.products.forEach((item, i) => {
         originalQuantities[i] = item.quantity;
       });
       setQuantities(originalQuantities);
-
       alert("Failed to remove item. Please try again.");
     }
   };
 
-  const total =
+  const subtotal =
     cartData?.products?.reduce(
       (sum, { product }, index) =>
         sum + product.discountedPrice * (quantities[index] || 1),
       0
     ) || 0;
 
+  const discountAmount = appliedDiscount
+    ? (subtotal * appliedDiscount.discountPercent) / 100
+    : 0;
+
+  const total = subtotal - discountAmount;
+
   const totalSavings =
-    cartData?.products?.reduce((sum, { product }, index) => {
+    (cartData?.products?.reduce((sum, { product }, index) => {
       if (product.originalPrice) {
         const savings =
           (product.originalPrice - product.discountedPrice) *
@@ -173,7 +182,7 @@ const Cart = () => {
         return sum + savings;
       }
       return sum;
-    }, 0) || 0;
+    }, 0) || 0) + discountAmount;
 
   if (!cartData) {
     return (
@@ -321,11 +330,28 @@ const Cart = () => {
                       <input
                         className="w-full px-4 py-4 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                         placeholder="Enter discount code"
+                        value={discountCode}
+                        onChange={(e) => setDiscountCode(e.target.value)}
                       />
-                      <button className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-900 hover:text-gray-700 transition-colors">
+                      <button
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-900 hover:text-gray-700 transition-colors"
+                        onClick={handleApplyDiscount}
+                      >
                         Apply
                       </button>
                     </div>
+                    {discountError && (
+                      <p className="mt-2 text-sm text-red-500">
+                        {discountError}
+                      </p>
+                    )}
+                    {appliedDiscount && (
+                      <p className="mt-2 text-sm text-emerald-600">
+                        {appliedDiscount.name} (
+                        {appliedDiscount.discountPercent}
+                        %) applied!
+                      </p>
+                    )}
                   </div>
 
                   {/* Price Breakdown */}
@@ -333,22 +359,31 @@ const Cart = () => {
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Subtotal</span>
                       <span className="font-medium text-gray-900">
-                        ₹{total.toLocaleString()}
+                        ₹{subtotal.toLocaleString()}
                       </span>
                     </div>
-
-                    {totalSavings > 0 && (
+                    {discountAmount > 0 && (
                       <div className="flex justify-between items-center">
                         <span className="text-emerald-600 flex items-center gap-1">
                           <Sparkles className="w-4 h-4" />
-                          You save
+                          Discount
                         </span>
                         <span className="font-medium text-emerald-600">
-                          -₹{totalSavings.toLocaleString()}
+                          -₹{discountAmount.toLocaleString()}
                         </span>
                       </div>
                     )}
-
+                    {totalSavings > discountAmount && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-emerald-600 flex items-center gap-1">
+                          <Sparkles className="w-4 h-4" />
+                          Product Savings
+                        </span>
+                        <span className="font-medium text-emerald-600">
+                          -₹{(totalSavings - discountAmount).toLocaleString()}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Shipping</span>
                       <div className="flex items-center gap-2">
@@ -360,7 +395,6 @@ const Cart = () => {
                         </span>
                       </div>
                     </div>
-
                     <div className="border-t border-gray-100 pt-4">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-lg font-semibold text-gray-900">
