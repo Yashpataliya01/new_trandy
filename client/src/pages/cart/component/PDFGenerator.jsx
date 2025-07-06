@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { AppContext } from "../../../context/AuthContext.jsx";
-import { generateAndDownloadPDF } from "../../../utils/pdfUtils.js";
+import { generateAndUploadPDF } from "../../../utils/pdfUtils.js"; // Adjust path as needed
 
 const CartPDFGenerator = ({
   cartData,
@@ -10,8 +10,8 @@ const CartPDFGenerator = ({
   discountAmount,
   total,
   totalSavings,
-  userInfo,
 }) => {
+  const { setFavcart } = useContext(AppContext);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(null);
 
@@ -20,20 +20,17 @@ const CartPDFGenerator = ({
     setError(null);
 
     try {
-      const result = await generateAndDownloadPDF(
+      const pdfUrl = await generateAndUploadPDF(
         cartData,
         quantities,
         appliedDiscount,
         subtotal,
         discountAmount,
         total,
-        totalSavings,
-        userInfo
+        totalSavings
       );
-
-      // Optionally, you can send a text message via WhatsApp with a note
+      const message = `Download your cart summary: ${pdfUrl}`;
       const phoneNumber = "7000334381";
-      const message = `Your cart summary PDF has been downloaded. Please upload it for further processing.`;
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
         message
       )}`;

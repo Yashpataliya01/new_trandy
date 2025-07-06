@@ -7,7 +7,8 @@ import {
   useRemoveFromCartMutation,
 } from "../../services/productsApi.js";
 import { useGetDiscountsQuery } from "../../services/productsApi.js";
-import CartPDFGenerator from "./component/PdfCreator.jsx";
+import CartPDFGenerator from "./component/PDFGenerator.jsx";
+import { generateAndUploadPDF } from "../../utils/pdfUtils.js";
 
 const Cart = () => {
   const [quantities, setQuantities] = useState({});
@@ -16,21 +17,21 @@ const Cart = () => {
   const [discountError, setDiscountError] = useState(null);
   const { setFavcart } = useContext(AppContext);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("user-info"));
 
-  const userInfo =
-    JSON.parse(localStorage.getItem("user-info")) ||
-    JSON.parse(localStorage.getItem("user"));
-
+  // RTK Query hooks
   const { data: cartData, isLoading: cartLoading } = useGetCartByUserQuery(
     user?.uid,
-    { skip: !user?.uid }
+    {
+      skip: !user?.uid,
+    }
   );
   const { data: discounts = [], isLoading: discountsLoading } =
     useGetDiscountsQuery();
   const [updateQuantity] = useUpdateQuantityMutation();
   const [removeFromCart] = useRemoveFromCartMutation();
 
+  // Initialize quantities when cart data is loaded
   React.useEffect(() => {
     if (cartData?.products) {
       const initialQuantities = {};
@@ -41,6 +42,7 @@ const Cart = () => {
     }
   }, [cartData]);
 
+  // Load Google Fonts
   React.useEffect(() => {
     const link = document.createElement("link");
     link.href =
@@ -125,59 +127,30 @@ const Cart = () => {
 
   const handleProceedToCheckout = async () => {
     const phoneNumber = "7000334381";
-    let message =
-      "Hello! I'd like to proceed with my cart. Please find the details below:\n\n";
+    let message = "Hello there";
 
     try {
       if (cartData?.products?.length) {
-        message += `User: ${userInfo?.name || userInfo?.displayName} (Email: ${
-          userInfo?.email || "Not Available"
-        }, Phone: ${userInfo?.number || "Not Available"})\n\n`;
-        message += generateTextSummary();
+        const pdfUrl = await generateAndUploadPDF(
+          cartData,
+          quantities,
+          appliedDiscount,
+          subtotal,
+          discountAmount,
+          total,
+          totalSavings
+        );
+        message = `Here is your cart summary: ${pdfUrl}`;
       }
     } catch (error) {
-      console.error("Error in checkout process:", error);
-      message += generateTextSummary();
+      console.error("Error generating or uploading PDF:", error);
+      alert("Failed to generate cart summary PDF. Proceeding to checkout.");
     }
 
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
       message
     )}`;
     window.open(whatsappUrl, "_blank");
-  };
-
-  const generateTextSummary = () => {
-    let summary = "🛒 *Cart Summary*\n\n";
-
-    cartData?.products?.forEach((item, index) => {
-      const quantity = quantities[index] || 1;
-      const itemTotal = item.product.discountedPrice * quantity;
-
-      summary += `${index + 1}. *${item.product.name}*\n`;
-      summary += `   Description: ${item.product.description}\n`;
-      summary += `   Quantity: ${quantity}\n`;
-      summary += `   Price: ₹${item.product.discountedPrice.toLocaleString()}\n`;
-      summary += `   Total: ₹${itemTotal.toLocaleString()}\n\n`;
-    });
-
-    summary += `💰 *Order Summary*\n`;
-    summary += `Subtotal: ₹${subtotal.toLocaleString()}\n`;
-
-    if (discountAmount > 0) {
-      summary += `Discount: -₹${discountAmount.toLocaleString()}\n`;
-    }
-
-    if (totalSavings > discountAmount) {
-      summary += `Product Savings: -₹${(
-        totalSavings - discountAmount
-      ).toLocaleString()}\n`;
-    }
-
-    summary += `Shipping: FREE\n`;
-    summary += `*Total: ₹${total.toLocaleString()}*\n\n`;
-    summary += `A PDF is downloaded to your device with the cart summary. Please upload it for further processing.`;
-
-    return summary;
   };
 
   const subtotal =
@@ -218,6 +191,7 @@ const Cart = () => {
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Header */}
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-4">
             <ShoppingBag className="w-8 h-8 text-gray-700" />
@@ -238,6 +212,7 @@ const Cart = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left: Product Details */}
           <div className="lg:col-span-8">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-auto">
               {cartData?.products.map((item, i) => (
@@ -246,6 +221,7 @@ const Cart = () => {
                   className="group hover:bg-gray-50 transition-all duration-200"
                 >
                   <div className="flex gap-6 p-8 border-b border-gray-100 last:border-b-0">
+                    {/* Product Image */}
                     <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
                       <img
                         src={item.product.image[0]}
@@ -253,6 +229,8 @@ const Cart = () => {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
+
+                    {/* Product Details */}
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex-1 pr-4">
@@ -275,13 +253,18 @@ const Cart = () => {
                               )}
                           </div>
                         </div>
-                        <button
-                          className="p-2 rounded-full hover:bg-red-50 transition-colors group/btn"
-                          onClick={() => handleRemoveItem(item, i)}
-                        >
-                          <X className="w-5 h-5 text-gray-400 group-hover/btn:text-red-500 transition-colors" />
-                        </button>
+
+                        <div className="flex items-center gap-3">
+                          <button
+                            className="p-2 rounded-full hover:bg-red-50 transition-colors group/btn"
+                            onClick={() => handleRemoveItem(item, i)}
+                          >
+                            <X className="w-5 h-5 text-gray-400 group-hover/btn:text-red-500 transition-colors" />
+                          </button>
+                        </div>
                       </div>
+
+                      {/* Stock Status & Quantity */}
                       <div className="flex items-center justify-between flex-wrap">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
@@ -289,6 +272,7 @@ const Cart = () => {
                             In Stock
                           </span>
                         </div>
+
                         <div className="flex items-center gap-3">
                           <span className="text-sm text-gray-500">Qty:</span>
                           <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
@@ -326,6 +310,8 @@ const Cart = () => {
               ))}
             </div>
           </div>
+
+          {/* Right: Order Summary */}
           <div className="lg:col-span-4">
             <div className="sticky top-8">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -336,6 +322,8 @@ const Cart = () => {
                   >
                     Order Summary
                   </h2>
+
+                  {/* Discount Code */}
                   <div className="mb-8">
                     <div className="relative">
                       <input
@@ -364,6 +352,8 @@ const Cart = () => {
                       </p>
                     )}
                   </div>
+
+                  {/* Price Breakdown */}
                   <div className="space-y-4 mb-8">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Subtotal</span>
@@ -418,6 +408,8 @@ const Cart = () => {
                       </p>
                     </div>
                   </div>
+
+                  {/* Action Buttons */}
                   <div className="space-y-3">
                     <button
                       className="w-full bg-gray-900 text-white py-4 px-6 rounded-xl font-medium tracking-wide hover:bg-gray-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
@@ -436,9 +428,10 @@ const Cart = () => {
                       discountAmount={discountAmount}
                       total={total}
                       totalSavings={totalSavings}
-                      userInfo={userInfo}
                     />
                   </div>
+
+                  {/* Security Badge */}
                   <div className="mt-6 pt-6 border-t border-gray-100">
                     <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
                       <div className="w-4 h-4 bg-emerald-100 rounded-full flex items-center justify-center">
