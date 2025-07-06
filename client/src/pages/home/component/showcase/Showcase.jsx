@@ -4,6 +4,18 @@ import { motion } from "framer-motion";
 
 const categories = [
   {
+    name: "TMP Special",
+    images: [
+      "https://cdn.shopify.com/s/files/1/0070/7032/articles/trending-products_2bd146ef-3fbd-4ab0-a8a4-8a7e4d1bf4c9.png?v=1751380747",
+      "https://www.shahisajawat.com/cdn/shop/products/product-image-1624263047.jpg?v=1608294995",
+    ],
+    title: "Grace Meets Grandeur",
+    description:
+      "Elevate your interiors with vintage-inspired masterpieces that blend timeless design with classic luxury.",
+    cta: "SHOP Special",
+    path: "TMP Special",
+  },
+  {
     name: "Accessories",
     images: [
       "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=900&h=700&fit=crop",
@@ -28,28 +40,16 @@ const categories = [
     path: "DIY",
   },
   {
-    name: "Baby",
+    name: "Gifts",
     images: [
-      "https://media.istockphoto.com/id/526495161/photo/baby-accessories.jpg?s=612x612&w=0&k=20&c=Ih0XCQLWwCjYVUBSzyWocEezTNqzl3_awW94zKQZrBI=",
-      "https://www.shutterstock.com/image-photo/baby-cosmetic-products-wicker-basket-600nw-2183191005.jpg",
+      "https://swagmagicblog.b-cdn.net/wp-content/uploads/2023/06/self-care-package-seasonal-gift-box-with-zero-waste-organic-cosmetics-products-for-men-1024x682.jpg",
+      "https://hips.hearstapps.com/hmg-prod/images/esq250102-digital-ecomm-giftsformen-8780-67c8baf2bf588.jpg?crop=0.668xw:1.00xh;0,0&resize=640:*",
     ],
-    title: "Soft, safe, and snug.",
+    title: "Thoughtful, timeless, and treasured.",
     description:
-      "Delightful essentials for your little ones. Quality, care, and cuteness bundled together.",
-    cta: "BABY PRODUCTS",
-    path: "Baby Products",
-  },
-  {
-    name: "Vintage Clocks",
-    images: [
-      "https://www.whiteteak.com/media/catalog/product/d/c/dc50-10002_2__1.jpg",
-      "https://www.shahisajawat.com/cdn/shop/products/product-image-1624263047.jpg?v=1608294995",
-    ],
-    title: "Timeless classics reimagined.",
-    description:
-      "Vintage timepieces to give your space a refined, nostalgic touch.",
-    cta: "SHOP CLOCKS",
-    path: "Vintage Clocks",
+      "Curated gifts for every occasion. Wrapped in care, delivered with love, and made to make memories.",
+    cta: "Gifts",
+    path: "Gifts",
   },
 ];
 

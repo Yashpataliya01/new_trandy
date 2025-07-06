@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Search,
   Smartphone,
@@ -7,37 +7,16 @@ import {
   ChevronRight,
   Tag,
 } from "lucide-react";
+import { useGetMobilesQuery } from "../../../services/productsApi.js"; // Adjust path based on your project structure
 
 const ModelSelector = ({ selectedBrand, onModelSelect }) => {
-  const [models, setModels] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const API = "http://localhost:5000/api";
-
-  useEffect(() => {
-    if (selectedBrand) {
-      fetchModels();
-    }
-  }, [selectedBrand]);
-
-  const fetchModels = async () => {
-    try {
-      const response = await fetch(
-        `${API}/mobiles/getMobiles?brand=${selectedBrand._id}`
-      );
-      const data = await response.json();
-      if (response.ok) {
-        setModels(data);
-      } else {
-        console.error("Failed to fetch models");
-      }
-    } catch (error) {
-      console.error("Error fetching models:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // RTK Query hook for fetching models
+  const { data: models = [], isLoading: loading } = useGetMobilesQuery(
+    selectedBrand?._id,
+    { skip: !selectedBrand?._id }
+  );
 
   const filteredModels = models.filter((model) =>
     model.modelName.toLowerCase().includes(searchTerm.toLowerCase())

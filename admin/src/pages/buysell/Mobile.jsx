@@ -541,6 +541,16 @@ const MobileVariants = () => {
                     ))}
                   </div>
                 </div>
+                <input
+                  type="radio"
+                  id="html"
+                  name="fav_language"
+                  value="HTML"
+                />
+                <label for="html">Formula A</label>
+                <br />
+                <input type="radio" id="css" name="fav_language" value="CSS" />
+                <label for="css">Formula B</label>
               </div>
             </div>
 

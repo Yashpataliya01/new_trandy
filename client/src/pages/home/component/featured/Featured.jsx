@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const TrendingSpotlight = () => {
   return (
@@ -34,12 +35,12 @@ const TrendingSpotlight = () => {
           <p className="text-black/50 text-lg mb-6">
             Pure form meets elevated hydration.
           </p>
-          <a
-            href="#"
+          <Link
+            to="/products"
             className="inline-block bg-[#f4d370] text-black px-6 py-3 rounded-full text-sm font-medium tracking-wide hover:bg-[#f6ca36] transition"
           >
             Shop Now →
-          </a>
+          </Link>
         </motion.div>
       </div>
     </section>

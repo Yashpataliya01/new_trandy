@@ -1,32 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Search, Smartphone } from "lucide-react";
+import { useGetBrandsQuery } from "../../../services/productsApi.js"; // Adjust path based on your project structure
 
 const BrandSelector = ({ onBrandSelect }) => {
-  const [brands, setBrands] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const API = "http://localhost:5000/api/mobiles";
-
-  useEffect(() => {
-    fetchBrands();
-  }, []);
-
-  const fetchBrands = async () => {
-    try {
-      const response = await fetch(`${API}/`);
-      const data = await response.json();
-      if (response.ok) {
-        setBrands(data);
-      } else {
-        console.error("Failed to fetch brands");
-      }
-    } catch (error) {
-      console.error("Error fetching brands:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // RTK Query hook for fetching brands
+  const { data: brands = [], isLoading: loading } = useGetBrandsQuery();
 
   const popularBrands = [
     "Apple",

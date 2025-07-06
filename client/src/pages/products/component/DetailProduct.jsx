@@ -11,6 +11,12 @@ import {
   Plus,
 } from "lucide-react";
 import ProductShowcase from "../../home/component/productSections/Sections";
+import {
+  useGetWishlistQuery,
+  useAddToWishlistMutation,
+  useRemoveFromWishlistMutation,
+  useAddToCartMutation,
+} from "../../../services/productsApi.js"; // Adjust the import path based on your project structure
 
 const DetailProduct = () => {
   const location = useLocation();
@@ -23,29 +29,26 @@ const DetailProduct = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
 
+  // RTK Query hooks
+  const { data: wishlistData, isLoading: wishlistLoading } =
+    useGetWishlistQuery(user?.uid, { skip: !user?.uid });
+  const [addToWishlist] = useAddToWishlistMutation();
+  const [removeFromWishlist] = useRemoveFromWishlistMutation();
+  const [addToCart] = useAddToCartMutation();
+
   useEffect(() => {
     if (product?.image?.[0]) setSelectedImage(product.image[0]);
   }, [product]);
 
-  // ✅ Fetch Wishlist State
+  // Set wishlist state based on query data
   useEffect(() => {
-    const fetchWishlist = async () => {
-      if (!user?.uid) return;
-      try {
-        const res = await fetch(
-          `http://localhost:5000/api/wishlists/${user.uid}`
-        );
-        const data = await res.json();
-        const ids = data.products?.map((item) => item.product._id) || [];
-        setIsWishlisted(ids.includes(product._id));
-      } catch (err) {
-        console.error("Wishlist fetch failed", err);
-      }
-    };
-    fetchWishlist();
-  }, [product._id, user?.uid]);
+    if (wishlistData) {
+      const ids = wishlistData.products?.map((item) => item.product._id) || [];
+      setIsWishlisted(ids.includes(product._id));
+    }
+  }, [wishlistData, product._id]);
 
-  // ✅ Toggle Wishlist
+  // Toggle Wishlist
   const toggleWishlist = async () => {
     if (!user?.uid) {
       toast.error("Please login to use wishlist");
@@ -53,57 +56,45 @@ const DetailProduct = () => {
       return;
     }
 
-    const endpoint = isWishlisted ? "remove" : "add";
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/wishlists/${endpoint}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user.uid, productId: product._id }),
-        }
-      );
-
-      const result = await res.json();
-      if (!res.ok) {
-        toast.error(result.message);
+      if (isWishlisted) {
+        await removeFromWishlist({
+          userId: user.uid,
+          productId: product._id,
+        }).unwrap();
+        toast.success("Removed from Wishlist");
       } else {
-        setIsWishlisted(!isWishlisted);
-        toast.success(
-          isWishlisted ? "Removed from Wishlist" : "Added to Wishlist ❤️"
-        );
+        await addToWishlist({
+          userId: user.uid,
+          productId: product._id,
+        }).unwrap();
+        toast.success("Added to Wishlist ❤️");
       }
+      setIsWishlisted(!isWishlisted);
     } catch (err) {
       console.error("Wishlist toggle error:", err);
-      toast.error("Something went wrong");
+      toast.error(err?.data?.message || "Something went wrong");
     }
   };
 
   const handleAddToCart = async () => {
+    if (!user || !user.uid) {
+      toast.error("Please login to add to cart");
+      navigate("/login");
+      return;
+    }
+
     try {
-      if (!user || !user.uid) return navigate("/login");
-
-      const res = await fetch("http://localhost:5000/api/carts/addToCart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user: user.uid,
-          productId: product._id,
-          quantity,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.message || "Failed to add to cart");
-        return;
-      }
-
+      await addToCart({
+        user: user.uid,
+        productId: product._id,
+        quantity,
+      }).unwrap();
       toast.success("Successfully added to cart!");
       setFavcart((prev) => prev + 1);
     } catch (error) {
       console.error("Add to cart error:", error);
-      toast.error("Network error while adding to cart.");
+      toast.error(error?.data?.message || "Failed to add to cart");
     }
   };
 

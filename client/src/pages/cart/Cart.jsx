@@ -1,51 +1,48 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { Heart, X, Plus, Minus, ShoppingBag, Sparkles } from "lucide-react";
 import { AppContext } from "../../context/AuthContext.jsx";
+import {
+  useGetCartByUserQuery,
+  useUpdateQuantityMutation,
+  useRemoveFromCartMutation,
+} from "../../services/productsApi.js";
+import { useGetDiscountsQuery } from "../../services/productsApi.js";
+import CartPDFGenerator from "./component/PdfCreator.jsx";
 
 const Cart = () => {
-  const [cartData, setCartData] = useState(null);
   const [quantities, setQuantities] = useState({});
-  const [discounts, setDiscounts] = useState([]);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(null);
   const [discountError, setDiscountError] = useState(null);
   const { setFavcart } = useContext(AppContext);
 
-  useEffect(() => {
-    // Load Google Fonts
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const { data: cartData, isLoading: cartLoading } = useGetCartByUserQuery(
+    user?.uid,
+    { skip: !user?.uid }
+  );
+  const { data: discounts = [], isLoading: discountsLoading } =
+    useGetDiscountsQuery();
+  const [updateQuantity] = useUpdateQuantityMutation();
+  const [removeFromCart] = useRemoveFromCartMutation();
+
+  React.useEffect(() => {
+    if (cartData?.products) {
+      const initialQuantities = {};
+      cartData.products.forEach((item, index) => {
+        initialQuantities[index] = item.quantity;
+      });
+      setQuantities(initialQuantities);
+    }
+  }, [cartData]);
+
+  React.useEffect(() => {
     const link = document.createElement("link");
     link.href =
       "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap";
     link.rel = "stylesheet";
     document.head.appendChild(link);
-
-    // Fetch cart data
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user?.uid) {
-      fetch(`http://localhost:5000/api/carts/getCartByUser/${user.uid}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setCartData(data);
-          const initialQuantities = {};
-          data.products?.forEach((item, index) => {
-            initialQuantities[index] = item.quantity;
-          });
-          setQuantities(initialQuantities);
-        })
-        .catch((error) => {
-          console.error("Error fetching cart data:", error);
-        });
-    }
-
-    // Fetch discounts
-    fetch("http://localhost:5000/api/discounts")
-      .then((res) => res.json())
-      .then((data) => {
-        setDiscounts(data.data || []);
-      })
-      .catch((error) => {
-        console.error("Error fetching discounts:", error);
-      });
   }, []);
 
   const handleApplyDiscount = () => {
@@ -61,59 +58,38 @@ const Cart = () => {
     }
   };
 
-  const updateQuantity = async (index, newQuantity) => {
+  const updateQuantityHandler = async (index, newQuantity) => {
     if (newQuantity < 1) return;
 
-    const user = JSON.parse(localStorage.getItem("user"));
     const product = cartData.products[index];
-
     if (!user?.uid || !product) return;
 
+    const originalQuantity = quantities[index] || 1;
     setQuantities((prev) => ({
       ...prev,
       [index]: newQuantity,
     }));
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/carts/updateQuantity",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user: user.uid,
-            productId: product.product._id,
-            quantity: newQuantity,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to update quantity");
-      }
+      await updateQuantity({
+        user: user.uid,
+        productId: product.product._id,
+        quantity: newQuantity,
+      }).unwrap();
     } catch (error) {
       console.error("Error updating quantity:", error);
       setQuantities((prev) => ({
         ...prev,
-        [index]: cartData.products[index].quantity,
+        [index]: originalQuantity,
       }));
       alert("Failed to update quantity. Please try again.");
     }
   };
 
   const handleRemoveItem = async (item, index) => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
     if (!user?.uid || !item?.product?._id) return;
 
     const updatedProducts = cartData.products.filter((_, i) => i !== index);
-    setCartData((prev) => ({
-      ...prev,
-      products: updatedProducts,
-    }));
-
     setQuantities((prev) => {
       const newQuantities = { ...prev };
       delete newQuantities[index];
@@ -128,29 +104,12 @@ const Cart = () => {
     setFavcart(updatedProducts.length);
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/carts/removeFromCart",
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user: user.uid,
-            productId: item.product._id,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to remove item");
-      }
+      await removeFromCart({
+        user: user.uid,
+        productId: item.product._id,
+      }).unwrap();
     } catch (error) {
       console.error("Error removing item:", error);
-      setCartData((prev) => ({
-        ...prev,
-        products: [...cartData.products],
-      }));
       const originalQuantities = {};
       cartData.products.forEach((item, i) => {
         originalQuantities[i] = item.quantity;
@@ -158,6 +117,66 @@ const Cart = () => {
       setQuantities(originalQuantities);
       alert("Failed to remove item. Please try again.");
     }
+  };
+
+  const handleProceedToCheckout = async () => {
+    const phoneNumber = "7000334381";
+    let message =
+      "Hello! I'd like to proceed with my cart. Please find the details below:\n\n";
+
+    try {
+      if (cartData?.products?.length) {
+        const userInfo =
+          JSON.parse(localStorage.getItem("user_info")) ||
+          JSON.parse(localStorage.getItem("user"));
+        message += `User: ${userInfo?.name || "Not Available"} (Email: ${
+          userInfo?.email || "Not Available"
+        }, Phone: ${userInfo?.phone || "Not Available"})\n\n`;
+        message += generateTextSummary();
+      }
+    } catch (error) {
+      console.error("Error in checkout process:", error);
+      message += generateTextSummary();
+    }
+
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(whatsappUrl, "_blank");
+  };
+
+  const generateTextSummary = () => {
+    let summary = "🛒 *Cart Summary*\n\n";
+
+    cartData?.products?.forEach((item, index) => {
+      const quantity = quantities[index] || 1;
+      const itemTotal = item.product.discountedPrice * quantity;
+
+      summary += `${index + 1}. *${item.product.name}*\n`;
+      summary += `   Description: ${item.product.description}\n`;
+      summary += `   Quantity: ${quantity}\n`;
+      summary += `   Price: ₹${item.product.discountedPrice.toLocaleString()}\n`;
+      summary += `   Total: ₹${itemTotal.toLocaleString()}\n\n`;
+    });
+
+    summary += `💰 *Order Summary*\n`;
+    summary += `Subtotal: ₹${subtotal.toLocaleString()}\n`;
+
+    if (discountAmount > 0) {
+      summary += `Discount: -₹${discountAmount.toLocaleString()}\n`;
+    }
+
+    if (totalSavings > discountAmount) {
+      summary += `Product Savings: -₹${(
+        totalSavings - discountAmount
+      ).toLocaleString()}\n`;
+    }
+
+    summary += `Shipping: FREE\n`;
+    summary += `*Total: ₹${total.toLocaleString()}*\n\n`;
+    summary += `A PDF is downloaded to your device with the cart summary. Please upload it for further processing.`;
+
+    return summary;
   };
 
   const subtotal =
@@ -184,7 +203,7 @@ const Cart = () => {
       return sum;
     }, 0) || 0) + discountAmount;
 
-  if (!cartData) {
+  if (cartLoading || discountsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
         <div className="animate-pulse text-gray-400">Loading your cart...</div>
@@ -198,7 +217,6 @@ const Cart = () => {
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-4">
             <ShoppingBag className="w-8 h-8 text-gray-700" />
@@ -219,7 +237,6 @@ const Cart = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left: Product Details */}
           <div className="lg:col-span-8">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-auto">
               {cartData?.products.map((item, i) => (
@@ -228,7 +245,6 @@ const Cart = () => {
                   className="group hover:bg-gray-50 transition-all duration-200"
                 >
                   <div className="flex gap-6 p-8 border-b border-gray-100 last:border-b-0">
-                    {/* Product Image */}
                     <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
                       <img
                         src={item.product.image[0]}
@@ -236,15 +252,13 @@ const Cart = () => {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
-
-                    {/* Product Details */}
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex-1 pr-4">
                           <div className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-2">
                             {item.product.brand}
                           </div>
-                          <h2 className="text-xl font-medium text-gray-900 mb-3 leading-tight">
+                          <h2 className="text-xlm text-gray-900 mb-3 leading-tight">
                             {item.product.name}
                           </h2>
                           <div className="flex items-baseline gap-3 mb-4">
@@ -260,18 +274,13 @@ const Cart = () => {
                               )}
                           </div>
                         </div>
-
-                        <div className="flex items-center gap-3">
-                          <button
-                            className="p-2 rounded-full hover:bg-red-50 transition-colors group/btn"
-                            onClick={() => handleRemoveItem(item, i)}
-                          >
-                            <X className="w-5 h-5 text-gray-400 group-hover/btn:text-red-500 transition-colors" />
-                          </button>
-                        </div>
+                        <button
+                          className="p-2 rounded-full hover:bg-red-50 transition-colors group/btn"
+                          onClick={() => handleRemoveItem(item, i)}
+                        >
+                          <X className="w-5 h-5 text-gray-400 group-hover/btn:text-red-500 transition-colors" />
+                        </button>
                       </div>
-
-                      {/* Stock Status & Quantity */}
                       <div className="flex items-center justify-between flex-wrap">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
@@ -279,13 +288,15 @@ const Cart = () => {
                             In Stock
                           </span>
                         </div>
-
                         <div className="flex items-center gap-3">
                           <span className="text-sm text-gray-500">Qty:</span>
                           <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
                             <button
                               onClick={() =>
-                                updateQuantity(i, (quantities[i] || 1) - 1)
+                                updateQuantityHandler(
+                                  i,
+                                  (quantities[i] || 1) - 1
+                                )
                               }
                               className="p-1 hover:bg-gray-100 transition-colors"
                             >
@@ -296,7 +307,10 @@ const Cart = () => {
                             </span>
                             <button
                               onClick={() =>
-                                updateQuantity(i, (quantities[i] || 1) + 1)
+                                updateQuantityHandler(
+                                  i,
+                                  (quantities[i] || 1) + 1
+                                )
                               }
                               className="p-2 hover:bg-gray-100 transition-colors"
                             >
@@ -311,8 +325,6 @@ const Cart = () => {
               ))}
             </div>
           </div>
-
-          {/* Right: Order Summary */}
           <div className="lg:col-span-4">
             <div className="sticky top-8">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -323,8 +335,6 @@ const Cart = () => {
                   >
                     Order Summary
                   </h2>
-
-                  {/* Discount Code */}
                   <div className="mb-8">
                     <div className="relative">
                       <input
@@ -353,8 +363,6 @@ const Cart = () => {
                       </p>
                     )}
                   </div>
-
-                  {/* Price Breakdown */}
                   <div className="space-y-4 mb-8">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Subtotal</span>
@@ -409,18 +417,26 @@ const Cart = () => {
                       </p>
                     </div>
                   </div>
-
-                  {/* Action Buttons */}
                   <div className="space-y-3">
-                    <button className="w-full bg-gray-900 text-white py-4 px-6 rounded-xl font-medium tracking-wide hover:bg-gray-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
+                    <button
+                      className="w-full bg-gray-900 text-white py-4 px-6 rounded-xl font-medium tracking-wide hover:bg-gray-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                      onClick={handleProceedToCheckout}
+                    >
                       Proceed to Checkout
                     </button>
                     <button className="w-full border-2 border-gray-200 text-gray-700 py-4 px-6 rounded-xl font-medium tracking-wide hover:border-gray-300 hover:bg-gray-50 transition-all duration-200">
                       Continue Shopping
                     </button>
+                    <CartPDFGenerator
+                      cartData={cartData}
+                      quantities={quantities}
+                      appliedDiscount={appliedDiscount}
+                      subtotal={subtotal}
+                      discountAmount={discountAmount}
+                      total={total}
+                      totalSavings={totalSavings}
+                    />
                   </div>
-
-                  {/* Security Badge */}
                   <div className="mt-6 pt-6 border-t border-gray-100">
                     <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
                       <div className="w-4 h-4 bg-emerald-100 rounded-full flex items-center justify-center">

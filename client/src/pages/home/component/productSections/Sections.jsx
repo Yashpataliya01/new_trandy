@@ -94,7 +94,7 @@ const ProductShowcase = ({ title }) => {
 
           {/* Product Grid */}
           <div className="grid grid-cols-2 min-[420px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-            {products.map((product, index) => (
+            {products.slice(0, 4).map((product, index) => (
               <motion.div
                 key={product._id}
                 initial={{ opacity: 0, y: 60 }}
