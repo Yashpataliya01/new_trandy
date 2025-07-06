@@ -18,6 +18,10 @@ const Cart = () => {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
+  const userInfo =
+    JSON.parse(localStorage.getItem("user-info")) ||
+    JSON.parse(localStorage.getItem("user"));
+
   const { data: cartData, isLoading: cartLoading } = useGetCartByUserQuery(
     user?.uid,
     { skip: !user?.uid }
@@ -126,12 +130,9 @@ const Cart = () => {
 
     try {
       if (cartData?.products?.length) {
-        const userInfo =
-          JSON.parse(localStorage.getItem("user_info")) ||
-          JSON.parse(localStorage.getItem("user"));
-        message += `User: ${userInfo?.name || "Not Available"} (Email: ${
+        message += `User: ${userInfo?.name || userInfo?.displayName} (Email: ${
           userInfo?.email || "Not Available"
-        }, Phone: ${userInfo?.phone || "Not Available"})\n\n`;
+        }, Phone: ${userInfo?.number || "Not Available"})\n\n`;
         message += generateTextSummary();
       }
     } catch (error) {
@@ -435,6 +436,7 @@ const Cart = () => {
                       discountAmount={discountAmount}
                       total={total}
                       totalSavings={totalSavings}
+                      userInfo={userInfo}
                     />
                   </div>
                   <div className="mt-6 pt-6 border-t border-gray-100">

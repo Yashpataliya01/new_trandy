@@ -10,8 +10,8 @@ const CartPDFGenerator = ({
   discountAmount,
   total,
   totalSavings,
+  userInfo,
 }) => {
-  const { setFavcart } = useContext(AppContext);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(null);
 
@@ -20,9 +20,6 @@ const CartPDFGenerator = ({
     setError(null);
 
     try {
-      const userInfo =
-        JSON.parse(localStorage.getItem("user-info")) ||
-        JSON.parse(localStorage.getItem("user"));
       const result = await generateAndDownloadPDF(
         cartData,
         quantities,
