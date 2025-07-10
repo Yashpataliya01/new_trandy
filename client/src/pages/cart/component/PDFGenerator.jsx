@@ -270,7 +270,7 @@ const CartPDFGenerator = ({
       const pdfBlob = doc.output("blob");
       const pdfUrl = await uploadToCloudinary(pdfBlob);
       const message = `New order invoice: ${pdfUrl}`;
-      const phoneNumber = "7000334381";
+      const phoneNumber = "8112261905";
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
         message
       )}`;

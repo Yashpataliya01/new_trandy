@@ -21,7 +21,7 @@ function App() {
   }, []);
 
   // WhatsApp URL with country code
-  const whatsappNumber = "+919413884119";
+  const whatsappNumber = "+918112261905";
   const whatsappLink = `https://wa.me/${whatsappNumber}`;
 
   return (
