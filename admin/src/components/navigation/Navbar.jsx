@@ -55,6 +55,13 @@ const AdminNavbar = () => {
               Discount
               <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-400 group-hover:w-full transition-all duration-300"></div>
             </Link>
+            <Link
+              to="/header"
+              className="px-4 py-2 text-slate-300 hover:text-white hover:bg-white/10 font-medium rounded-lg transition-all duration-200 relative group"
+            >
+              Header
+              <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-400 group-hover:w-full transition-all duration-300"></div>
+            </Link>
           </div>
 
           {/* Right Section */}

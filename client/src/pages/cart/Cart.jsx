@@ -8,7 +8,6 @@ import {
 } from "../../services/productsApi.js";
 import { useGetDiscountsQuery } from "../../services/productsApi.js";
 import CartPDFGenerator from "./component/PDFGenerator.jsx";
-import { generateAndUploadPDF } from "../../utils/pdfUtils.js";
 
 const Cart = () => {
   const [quantities, setQuantities] = useState({});
@@ -17,7 +16,7 @@ const Cart = () => {
   const [discountError, setDiscountError] = useState(null);
   const { setFavcart } = useContext(AppContext);
 
-  const user = JSON.parse(localStorage.getItem("user-info"));
+  const user = JSON.parse(localStorage.getItem("user"));
 
   // RTK Query hooks
   const { data: cartData, isLoading: cartLoading } = useGetCartByUserQuery(
@@ -125,32 +124,8 @@ const Cart = () => {
     }
   };
 
-  const handleProceedToCheckout = async () => {
-    const phoneNumber = "7000334381";
-    let message = "Hello there";
-
-    try {
-      if (cartData?.products?.length) {
-        const pdfUrl = await generateAndUploadPDF(
-          cartData,
-          quantities,
-          appliedDiscount,
-          subtotal,
-          discountAmount,
-          total,
-          totalSavings
-        );
-        message = `Here is your cart summary: ${pdfUrl}`;
-      }
-    } catch (error) {
-      console.error("Error generating or uploading PDF:", error);
-      alert("Failed to generate cart summary PDF. Proceeding to checkout.");
-    }
-
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-      message
-    )}`;
-    window.open(whatsappUrl, "_blank");
+  const handleError = (message) => {
+    alert(message);
   };
 
   const subtotal =
@@ -237,7 +212,7 @@ const Cart = () => {
                           <div className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-2">
                             {item.product.brand}
                           </div>
-                          <h2 className="text-xlm text-gray-900 mb-3 leading-tight">
+                          <h2 className="text-xl text-gray-900 mb-3 leading-tight">
                             {item.product.name}
                           </h2>
                           <div className="flex items-baseline gap-3 mb-4">
@@ -411,15 +386,6 @@ const Cart = () => {
 
                   {/* Action Buttons */}
                   <div className="space-y-3">
-                    <button
-                      className="w-full bg-gray-900 text-white py-4 px-6 rounded-xl font-medium tracking-wide hover:bg-gray-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
-                      onClick={handleProceedToCheckout}
-                    >
-                      Proceed to Checkout
-                    </button>
-                    <button className="w-full border-2 border-gray-200 text-gray-700 py-4 px-6 rounded-xl font-medium tracking-wide hover:border-gray-300 hover:bg-gray-50 transition-all duration-200">
-                      Continue Shopping
-                    </button>
                     <CartPDFGenerator
                       cartData={cartData}
                       quantities={quantities}
@@ -428,7 +394,11 @@ const Cart = () => {
                       discountAmount={discountAmount}
                       total={total}
                       totalSavings={totalSavings}
+                      onError={handleError}
                     />
+                    <button className="w-full border-2 border-gray-200 text-gray-700 py-4 px-6 rounded-xl font-medium tracking-wide hover:border-gray-300 hover:bg-gray-50 transition-all duration-200">
+                      Continue Shopping
+                    </button>
                   </div>
 
                   {/* Security Badge */}

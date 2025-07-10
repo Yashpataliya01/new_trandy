@@ -1,33 +1,84 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Loader2 } from "lucide-react";
 
-const slides = [
+// Placeholder for API base URL (replace with your actual API URL)
+const API = "http://localhost:5000/api";
+
+// Dummy data to simulate API response
+const dummyProducts = [
   {
+    _id: "1",
+    title: "Creative Living Starts Here",
     image:
       "https://www.treehugger.com/thmb/v4CGhx0mVkRXgqwz2EZSz8e1FL8=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/diy-projects-reuse-your-old-glass-bottles-4864269-09-2f2da6da36a0430695b4c48c57693480.JPG",
-    heading: "Creative Living Starts Here",
   },
   {
+    _id: "2",
+    title: "Accessories That Power Your Day",
     image:
       "https://t3.ftcdn.net/jpg/01/59/74/48/360_F_159744874_MshH8rY3U6RRnUXmHpAGmF31my7hJAtV.jpg",
-    heading: "Accessories That Power Your Day",
   },
   {
+    _id: "3",
+    title: "Because Your Baby Deserves the Best",
     image:
       "https://www.pymnts.com/wp-content/uploads/2024/06/baby-products.jpg",
-    heading: "Because Your Baby Deserves the Best",
   },
 ];
 
 const Header = () => {
+  const [products, setProducts] = useState([]);
   const [index, setIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const url = `${API}/home/`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || "Failed to fetch products");
+      setProducts(data);
+    } catch (error) {
+      alert("Failed to load products");
+      setProducts(dummyProducts); // Fallback to dummy data on error
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    if (products.length === 0) return;
+
     const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % slides.length);
+      setIndex((prev) => (prev + 1) % products.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [products]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[90vh]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
+          <p className="text-gray-500">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-[90vh]">
+        <p className="text-gray-500">No products available</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -89,14 +140,14 @@ const Header = () => {
             className="absolute inset-0 w-full h-full"
           >
             <img
-              src={slides[index].image}
-              alt="slide"
+              src={products[index].image}
+              alt={products[index].title}
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-black/40" />
             <div className="absolute inset-0 flex items-center justify-center text-center px-4">
               <motion.div
-                key={slides[index].heading}
+                key={products[index].title}
                 initial={{ y: 60, opacity: 0, scale: 0.8 }}
                 animate={{ y: 0, opacity: 1, scale: 1 }}
                 exit={{ y: -60, opacity: 0, scale: 0.8 }}
@@ -109,7 +160,7 @@ const Header = () => {
                 className="max-w-4xl"
               >
                 <h1 className="hero-text-modern text-4xl md:text-6xl font-thin tracking-[0.2em] leading-tight">
-                  {slides[index].heading.split(" ").map((word, wordIndex) => (
+                  {products[index].title.split(" ").map((word, wordIndex) => (
                     <span key={wordIndex} className="word">
                       {word.split("").map((char, charIndex) => (
                         <motion.span
