@@ -24,7 +24,15 @@ export const getAllProducts = async (req, res) => {
 // /controllers/productController.js
 export const getProducts = async (req, res) => {
   try {
-    const { category, tags, page = 1, limit = 20, sort } = req.query;
+    const {
+      category,
+      tags,
+      page = 1,
+      limit = 20,
+      sort,
+      search,
+      id,
+    } = req.query;
 
     const filter = {};
 
@@ -37,15 +45,28 @@ export const getProducts = async (req, res) => {
       filter.category = categoryDoc._id;
     }
 
+    if (id) {
+      const categoryDoc = await Category.findOne({ _id: id });
+      if (!categoryDoc) {
+        return res.status(400).json({ message: "Category not found" });
+      }
+      filter.category = categoryDoc._id;
+    }
+
     // Tag filtering
     if (tags) {
       filter.tag = tags;
     }
 
+    // Search filtering by name
+    if (search) {
+      filter.name = { $regex: search, $options: "i" }; // Case-insensitive search
+    }
+
     const skip = (page - 1) * limit;
 
     // Fetch all filtered products for in-memory sorting
-    let products = await Product.find(filter).populate("category").lean(); // lean makes docs plain JS objects
+    let products = await Product.find(filter).populate("category").lean();
 
     // Apply sorting based on price/discountedPrice
     if (sort === "price_asc") {

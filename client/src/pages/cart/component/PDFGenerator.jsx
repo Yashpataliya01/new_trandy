@@ -22,14 +22,14 @@ const generatePDFContent = (
   // Header
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
-  doc.text("Your Company Name", margin, y);
+  doc.text("THE MOBILE POINT", margin, y);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(100);
   y += 5;
-  doc.text("123 Business Street, City, Country", margin, y);
+  doc.text("Bhilwara, Rajasthan, 311001, India", margin, y);
   y += 5;
-  doc.text("Email: contact@company.com | Phone: +1234567890", margin, y);
+  doc.text("Email: tmpbhilwara2151@gmail.com | Phone: +8112261905", margin, y);
   y += 10;
 
   // Invoice Details
@@ -250,7 +250,7 @@ const CartPDFGenerator = ({
   totalSavings,
   onError,
 }) => {
-  const { user } = useContext(AppContext);
+  const { user } = localStorage.getItem("user-info");
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerateAndSend = async () => {
@@ -271,10 +271,20 @@ const CartPDFGenerator = ({
       const pdfUrl = await uploadToCloudinary(pdfBlob);
       const message = `New order invoice: ${pdfUrl}`;
       const phoneNumber = "8112261905";
-      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+
+      // Try WhatsApp app custom scheme first
+      const whatsappAppUrl = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(
         message
       )}`;
-      window.open(whatsappUrl, "_blank");
+      window.location.href = whatsappAppUrl;
+
+      // Fallback to web.whatsapp.com after a short delay if app fails to open
+      setTimeout(() => {
+        const whatsappWebUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+          message
+        )}`;
+        window.open(whatsappWebUrl, "_blank");
+      }, 1000); // Delay to allow app to open, adjust as needed
     } catch (error) {
       onError(error.message || "Failed to generate or send invoice");
     } finally {

@@ -8,8 +8,10 @@ import {
 } from "../../services/productsApi.js";
 import { useGetDiscountsQuery } from "../../services/productsApi.js";
 import CartPDFGenerator from "./component/PDFGenerator.jsx";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
+  const navigate = useNavigate();
   const [quantities, setQuantities] = useState({});
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(null);
@@ -161,10 +163,7 @@ const Cart = () => {
   }
 
   return (
-    <div
-      className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50"
-      style={{ fontFamily: "'Inter', sans-serif" }}
-    >
+    <div className="min-h-screen" style={{ fontFamily: "'Inter', sans-serif" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-12">
@@ -197,7 +196,14 @@ const Cart = () => {
                 >
                   <div className="flex gap-6 p-8 border-b border-gray-100 last:border-b-0">
                     {/* Product Image */}
-                    <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
+                    <div
+                      className="w-32 h-32 lg:w-40 lg:h-40 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100"
+                      onClick={() =>
+                        navigate(`/products/${item.product._id}`, {
+                          state: item.product,
+                        })
+                      }
+                    >
                       <img
                         src={item.product.image[0]}
                         alt={item.product.name}
@@ -358,17 +364,6 @@ const Cart = () => {
                         </span>
                       </div>
                     )}
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Shipping</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-400 line-through text-sm">
-                          ₹99
-                        </span>
-                        <span className="font-medium text-emerald-600">
-                          FREE
-                        </span>
-                      </div>
-                    </div>
                     <div className="border-t border-gray-100 pt-4">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-lg font-semibold text-gray-900">

@@ -268,7 +268,10 @@ const DetailProduct = () => {
         </div>
 
         {/* Product Showcase */}
-        <ProductShowcase title={product.category?.name} />
+        <ProductShowcase
+          title={product.category?.name}
+          id={product.category ? product.category : ""}
+        />
       </div>
       <Toaster />
     </div>
