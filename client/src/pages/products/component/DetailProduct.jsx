@@ -20,7 +20,7 @@ import {
 
 const DetailProduct = () => {
   const location = useLocation();
-  const product = location.state;
+  const { product, id } = location.state || {};
   const { setFavcart } = useContext(AppContext);
   const navigate = useNavigate();
 
@@ -109,7 +109,7 @@ const DetailProduct = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen ">
       <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <button
@@ -268,10 +268,7 @@ const DetailProduct = () => {
         </div>
 
         {/* Product Showcase */}
-        <ProductShowcase
-          title={product.category?.name}
-          id={product.category ? product.category : ""}
-        />
+        <ProductShowcase title={product.category?.name} id={id ? id : ""} />
       </div>
       <Toaster />
     </div>

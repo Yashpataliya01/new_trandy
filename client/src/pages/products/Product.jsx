@@ -52,7 +52,7 @@ const ProductPage = () => {
   const categories = ["All", ...(categoriesData?.map((cat) => cat.name) || [])];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 px-4 py-6 font-sans">
+    <div className="min-h-screen  px-4 py-6 font-sans">
       <div className="max-w-7xl mx-auto">
         {/* Top Bar */}
         <div className="flex justify-between items-center mb-6 flex-col sm:flex-row gap-4">
@@ -119,7 +119,12 @@ const ProductPage = () => {
                   className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 cursor-pointer"
                   whileHover={{ y: -4 }}
                   onClick={() =>
-                    navigate(`/products/${product._id}`, { state: product })
+                    navigate(`/products/${product._id}`, {
+                      state: {
+                        product: product,
+                        id: product?.category?._id,
+                      },
+                    })
                   }
                 >
                   {/* Product Image with hover effect */}

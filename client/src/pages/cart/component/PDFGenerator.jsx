@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import { motion } from "framer-motion";
-import { AppContext } from "../../../context/AuthContext.jsx";
 import jsPDF from "jspdf";
+import { AppContext } from "../../../context/AuthContext.jsx";
 
 const generatePDFContent = (
   cartData,
@@ -250,7 +250,12 @@ const CartPDFGenerator = ({
   totalSavings,
   onError,
 }) => {
-  const { user } = localStorage.getItem("user-info");
+  const userInfo = localStorage.getItem("user-info");
+  const user = userInfo ? JSON.parse(userInfo) : null;
+  const { updateModal } = useContext(AppContext);
+  if (!user) {
+    updateModal(true);
+  }
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerateAndSend = async () => {

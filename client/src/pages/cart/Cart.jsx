@@ -200,7 +200,10 @@ const Cart = () => {
                       className="w-32 h-32 lg:w-40 lg:h-40 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100"
                       onClick={() =>
                         navigate(`/products/${item.product._id}`, {
-                          state: item.product,
+                          state: {
+                            product: item.product,
+                            id: item?.product?.category,
+                          },
                         })
                       }
                     >

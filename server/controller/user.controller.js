@@ -14,6 +14,7 @@ export const getAllUsers = async (req, res) => {
 };
 
 export const createUser = async (req, res) => {
+  console.log("hello");
   try {
     const user = await User.create(req.body);
     user.save();

@@ -8,6 +8,7 @@ import { useGetProductsQuery } from "../../../../services/productsApi";
 import img from "../../../../assets/home/homeBar.jpeg";
 
 const ProductShowcase = ({ title, id }) => {
+  console.log(id, "id");
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -23,15 +24,13 @@ const ProductShowcase = ({ title, id }) => {
   const { data, error, isLoading } = useGetProductsQuery(queryParams);
   const products = data?.products || [];
 
-  console.log(data, "my hero data");
-
   // Get wishlist on load
   useEffect(() => {
     const fetchWishlist = async () => {
       if (!user?.uid) return;
       try {
         const res = await fetch(
-          `http://localhost:5000/api/wishlists/${user.uid}`
+          `http://localhost:5000/api/wishlists/${user?.uid}`
         );
         const data = await res.json();
         const productIds = data.products?.map((item) => item.product._id) || [];
@@ -117,7 +116,12 @@ const ProductShowcase = ({ title, id }) => {
                 }}
                 className="group cursor-pointer bg-white rounded-2xl transition-shadow duration-300"
                 onClick={() =>
-                  navigate(`/products/${product._id}`, { state: product })
+                  navigate(`/products/${product._id}`, {
+                    state: {
+                      product: product,
+                      id: product?.category?._id,
+                    },
+                  })
                 }
               >
                 {/* Product Image */}
