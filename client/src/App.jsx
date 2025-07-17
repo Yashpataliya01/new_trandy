@@ -15,7 +15,7 @@ function App() {
 
     const timer = setTimeout(() => {
       setShowModal(true);
-    }, 1000 * 3); // 3 seconds (corrected from your comment about 10 minutes)
+    }, 1000 * 60 * 10); // 3 seconds (corrected from your comment about 10 minutes)
 
     return () => clearTimeout(timer);
   }, []);
