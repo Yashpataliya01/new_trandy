@@ -245,63 +245,32 @@ const ConditionChecker = ({ selectedModel, selectedVariant }) => {
   };
 
   const sendToWhatsApp = () => {
-    const phoneNumber = "8112261905"; // Your WhatsApp number
+    const phoneNumber = "918112261905"; // Always add country code for better reliability
+
     const message = `
-📱 *Phone Valuation Details* 📱
+Phone Valuation Details:
 Model: ${selectedModel?.modelName || "N/A"}
 Brand: ${selectedModel?.brand || "N/A"}
 RAM: ${selectedVariant?.ram || "N/A"}GB
 Storage: ${selectedVariant?.rom || "N/A"}GB
 Estimated Value: ₹${finalPrice ? finalPrice.toLocaleString() : "N/A"}
 
-*Condition Details:*
+Condition Details:
 ${questions
   .map(
     (q) =>
-      `${q.title}: ${answers[q.id]?.label || "Not answered"} (${
+      `${q.title}: ${answers[q.id]?.label || "Not answered"} - ${
         answers[q.id]?.description || "N/A"
-      })`
+      }`
   )
   .join("\n")}
 
 Please provide a quote based on this information.
-    `.trim();
+  `.trim();
 
-    // Clean the message to avoid encoding issues
-    const cleanedMessage = message.replace(/[^\x00-\x7F]/g, ""); // Remove non-ASCII characters
-    const encodedMessage = encodeURIComponent(cleanedMessage);
-
-    // Use a single reliable URL scheme
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-
-    // Attempt to open WhatsApp
-    const link = document.createElement("a");
-    link.href = whatsappUrl;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-
-    try {
-      link.click();
-      // Fallback after 1 second if WhatsApp doesn't open or pre-fill fails
-      setTimeout(() => {
-        if (document.visibilityState !== "hidden") {
-          alert(
-            "WhatsApp did not open correctly. The message has been copied to your clipboard. Please paste it into WhatsApp."
-          );
-          navigator.clipboard.writeText(message).catch((err) => {
-            console.error("Failed to copy to clipboard:", err);
-          });
-        }
-      }, 1000);
-    } catch (error) {
-      console.error("Error opening WhatsApp:", error);
-      alert(
-        "Failed to open WhatsApp. The message has been copied to your clipboard. Please paste it manually."
-      );
-      navigator.clipboard.writeText(message).catch((err) => {
-        console.error("Failed to copy to clipboard:", err);
-      });
-    }
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappURL = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
+    window.open(whatsappURL, "_blank");
   };
 
   const question = questions[currentQuestion];
