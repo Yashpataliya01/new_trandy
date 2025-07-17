@@ -15,18 +15,26 @@ function App() {
 
     const timer = setTimeout(() => {
       setShowModal(true);
-    }, 1000 * 60 * 10); // 3 seconds (corrected from your comment about 10 minutes)
+    }, 1000 * 60 * 10); // 10 minutes
 
     return () => clearTimeout(timer);
   }, []);
 
-  // WhatsApp URL with country code
+  // WhatsApp URL with prefilled message
   const whatsappNumber = "+918112261905";
-  const whatsappLink = `https://wa.me/${whatsappNumber}`;
+  const prefilledMessage = encodeURIComponent(
+    "Hello! I'm interested in learning more about your products/services. Can you provide more details?"
+  );
+
+  // Try `whatsapp://` for desktop apps, fallback to `https://wa.me/` for browsers/mobile
+  const isDesktopApp = navigator.userAgent.includes("WhatsApp"); // Basic check for WhatsApp desktop app
+  const whatsappLink = isDesktopApp
+    ? `whatsapp://send?phone=${whatsappNumber}&text=${prefilledMessage}`
+    : `https://wa.me/${whatsappNumber}?text=${prefilledMessage}`;
 
   return (
     <AppProvider>
-      <Suspense>
+      <Suspense fallback={<div>Loading application...</div>}>
         <RouterProvider router={routes} />
         {showModal && <UserInfoModal onClose={() => setShowModal(false)} />}
         <a
@@ -34,7 +42,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
           className="whatsapp-float"
-          aria-label="Chat on WhatsApp"
+          aria-label="Chat with us on WhatsApp"
         >
           <FaWhatsapp size={40} color="white" />
         </a>
