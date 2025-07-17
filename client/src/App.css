@@ -6,8 +6,7 @@
 
 html,
 body {
-  font-family: "Segoe UI", sans-serif;
-  background-color: #f3f9ffd8;
+  background-color: #e6f2ffd8;
   color: #333;
   height: 100%;
   width: 100%;
@@ -29,7 +28,8 @@ body {
   background-color: #128c7e; /* Darker green on hover */
 }
 
-h2 {
+h2,
+h1 {
   font-family: "Bangers", system-ui;
   font-weight: 400;
   font-style: normal;

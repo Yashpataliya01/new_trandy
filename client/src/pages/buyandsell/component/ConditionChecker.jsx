@@ -244,13 +244,63 @@ const ConditionChecker = ({ selectedModel, selectedVariant }) => {
     }
   };
 
-  const handlePrevious = () => {
-    if (currentQuestion > 0) {
-      setIsAnimating(true);
+  const sendToWhatsApp = () => {
+    const phoneNumber = "8112261905"; // Your WhatsApp number
+    const message = `
+📱 *Phone Valuation Details* 📱
+Model: ${selectedModel?.modelName || "N/A"}
+Brand: ${selectedModel?.brand || "N/A"}
+RAM: ${selectedVariant?.ram || "N/A"}GB
+Storage: ${selectedVariant?.rom || "N/A"}GB
+Estimated Value: ₹${finalPrice ? finalPrice.toLocaleString() : "N/A"}
+
+*Condition Details:*
+${questions
+  .map(
+    (q) =>
+      `${q.title}: ${answers[q.id]?.label || "Not answered"} (${
+        answers[q.id]?.description || "N/A"
+      })`
+  )
+  .join("\n")}
+
+Please provide a quote based on this information.
+    `.trim();
+
+    // Clean the message to avoid encoding issues
+    const cleanedMessage = message.replace(/[^\x00-\x7F]/g, ""); // Remove non-ASCII characters
+    const encodedMessage = encodeURIComponent(cleanedMessage);
+
+    // Use a single reliable URL scheme
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+
+    // Attempt to open WhatsApp
+    const link = document.createElement("a");
+    link.href = whatsappUrl;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+
+    try {
+      link.click();
+      // Fallback after 1 second if WhatsApp doesn't open or pre-fill fails
       setTimeout(() => {
-        setCurrentQuestion(currentQuestion - 1);
-        setIsAnimating(false);
-      }, 200);
+        if (document.visibilityState !== "hidden") {
+          alert(
+            "WhatsApp did not open correctly. The message has been copied to your clipboard. Please paste it into WhatsApp."
+          );
+          navigator.clipboard.writeText(message).catch((err) => {
+            console.error("Failed to copy to clipboard:", err);
+          });
+        }
+      }, 1000);
+    } catch (error) {
+      console.error("Error opening WhatsApp:", error);
+      alert(
+        "Failed to open WhatsApp. The message has been copied to your clipboard. Please paste it manually."
+      );
+      navigator.clipboard.writeText(message).catch((err) => {
+        console.error("Failed to copy to clipboard:", err);
+      });
     }
   };
 
@@ -511,7 +561,7 @@ const ConditionChecker = ({ selectedModel, selectedVariant }) => {
                             </span>
                           </div>
 
-                          <div className="flex justify-between items-center py-2 border-b border-emerald-200">
+                          {/* <div className="flex justify-between items-center py-2 border-b border-emerald-200">
                             <span className="text-sm text-gray-600">
                               Depreciation
                             </span>
@@ -521,20 +571,23 @@ const ConditionChecker = ({ selectedModel, selectedVariant }) => {
                                 mockSelectedVariant.basePrice - finalPrice
                               ).toLocaleString()}
                             </span>
-                          </div>
+                          </div> */}
                         </div>
 
-                        <div className="bg-white rounded-xl p-4 border border-emerald-200">
+                        {/* <div className="bg-white rounded-xl p-4 border border-emerald-200">
                           <p className="text-sm font-medium text-gray-600 mb-1">
                             Your Phone's Value
                           </p>
                           <p className="text-3xl font-bold text-emerald-700">
                             ₹{finalPrice.toLocaleString()}
                           </p>
-                        </div>
+                        </div> */}
 
-                        <button className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-3 rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl">
-                          Get This Offer
+                        <button
+                          onClick={sendToWhatsApp}
+                          className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-3 rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                        >
+                          Get the Offer
                         </button>
                       </div>
                     </div>

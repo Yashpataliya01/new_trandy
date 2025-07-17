@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -26,6 +26,15 @@ const ProductPage = () => {
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [page, setPage] = useState(1);
   const limit = 9;
+
+  // Check if user has visited before using localStorage
+  useEffect(() => {
+    const hasVisited = localStorage.getItem("hasVisitedProductPage");
+    if (!hasVisited) {
+      setShowFilter(true);
+      localStorage.setItem("hasVisitedProductPage", "true");
+    }
+  }, []);
 
   const { data, isLoading, isError } = useGetProductsQuery({
     search,
@@ -199,7 +208,7 @@ const ProductPage = () => {
           }`}
           initial={{ x: "100%" }}
           animate={{ x: showFilter ? 0 : "100%" }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          transition={{ duration: 0.1 }}
         >
           <div className="flex justify-between items-center px-4 py-4 border-b border-gray-100">
             <h3 className="font-semibold text-lg text-gray-900">
@@ -341,7 +350,7 @@ const ProductPage = () => {
         <AnimatePresence>
           {showFilter && (
             <motion.div
-              className="fixed inset-0 bg-gradient-to-b from-gray-200/20 to-gray-300/20 backdrop-blur-lg z-40"
+              className="fixed inset-0 bg-gradient-to-b from-gray Hawkins-gray-300/20 to-gray-300/20 backdrop-blur-lg z-40"
               onClick={() => setShowFilter(false)}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
