@@ -7,12 +7,11 @@ import {
   ChevronRight,
   Tag,
 } from "lucide-react";
-import { useGetMobilesQuery } from "../../../services/productsApi.js"; // Adjust path based on your project structure
+import { useGetMobilesQuery } from "../../../services/productsApi.js";
 
 const ModelSelector = ({ selectedBrand, onModelSelect }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  // RTK Query hook for fetching models
   const { data: models = [], isLoading: loading } = useGetMobilesQuery(
     selectedBrand?._id,
     { skip: !selectedBrand?._id }
@@ -28,106 +27,98 @@ const ModelSelector = ({ selectedBrand, onModelSelect }) => {
 
   if (loading) {
     return (
-      <div className="text-center py-16">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mx-auto mb-4" />
-        <p className="text-gray-500">Loading models...</p>
+      <div className="text-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2" />
+        <p className="text-sm text-gray-500">Loading models...</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">
+    <div className="w-full max-w-4xl mx-auto px-2 sm:px-4">
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-medium text-gray-900 mb-1">
           {selectedBrand?.name
-            ? `Select your ${selectedBrand.name} model`
-            : "Select your model"}
+            ? `${selectedBrand.name} Models`
+            : "Select Model"}
         </h2>
-        <p className="text-gray-500 text-base">
-          Choose the exact model and variant of your phone
+        <p className="text-xs sm:text-sm text-gray-600">
+          Choose your phone's model
         </p>
       </div>
 
-      {/* Search Bar */}
-      <div className="relative mb-10 max-w-2xl mx-auto">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+      <div className="relative mb-4 sm:mb-6 max-w-lg mx-auto">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
         <input
           type="text"
           placeholder="Search models..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
         />
       </div>
 
-      {/* Models Grid */}
       {filteredModels.length > 0 ? (
-        <div className="space-y-10">
+        <div className="space-y-4">
           {filteredModels.map((model) => (
             <div
               key={model._id}
-              className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all"
+              className="bg-white border border-gray-100 rounded-lg shadow-sm hover:shadow-md"
             >
-              {/* Model Info */}
-              <div className="p-5 sm:p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center gap-4">
-                <div className="w-20 h-20 bg-gray-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              <div className="p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3">
+                <div className="w-16 h-16 bg-gray-50 rounded-lg flex items-center justify-center">
                   {model.image ? (
                     <img
                       src={model.image}
                       alt={model.modelName}
-                      className="w-full h-full object-cover rounded-xl"
+                      className="w-full h-full object-cover rounded-lg"
                     />
                   ) : (
-                    <Smartphone className="w-7 h-7 text-gray-400" />
+                    <Smartphone className="w-6 h-6 text-gray-400" />
                   )}
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-gray-900">
+                  <h3 className="text-lg font-medium text-gray-900">
                     {model.modelName}
                   </h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {model.variants?.length || 0} variant
-                    {model.variants?.length > 1 ? "s" : ""} available
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    {model.variants?.length} variant
+                    {model.variants?.length > 1 ? "s" : ""}
                   </p>
                 </div>
               </div>
 
-              {/* Variant Grid */}
-              <div className="p-5 sm:p-6">
-                <h4 className="text-sm font-semibold text-gray-800 mb-4">
-                  Available Variants
+              <div className="p-3 sm:p-4">
+                <h4 className="text-sm font-medium text-gray-800 mb-2">
+                  Variants
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {model.variants?.map((variant, idx) => (
                     <button
                       key={idx}
                       onClick={() => handleVariantSelect(model, variant)}
-                      className="group p-4 border border-gray-200 rounded-xl bg-white text-left hover:border-blue-500 hover:shadow transition-all duration-200"
+                      className="group p-2 border border-gray-100 rounded-lg bg-white text-left hover:border-blue-500 hover:shadow"
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Cpu className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm font-medium text-gray-800">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-1">
+                          <Cpu className="w-3 h-3 text-gray-500" />
+                          <span className="text-xs font-medium text-gray-800">
                             {variant.ram}GB RAM
                           </span>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-transform duration-200" />
+                        <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-blue-500" />
                       </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <HardDrive className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm font-medium text-gray-800">
+                      <div className="flex items-center gap-1 mb-1">
+                        <HardDrive className="w-3 h-3 text-gray-500" />
+                        <span className="text-xs font-medium text-gray-800">
                           {variant.rom}GB Storage
                         </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Tag className="w-4 h-4 text-green-600" />
-                        <span className="text-sm font-semibold text-green-600">
+                      <div className="flex items-center gap-1">
+                        <Tag className="w-3 h-3 text-green-600" />
+                        <span className="text-xs font-medium text-green-600">
                           ₹{parseInt(variant.basePrice).toLocaleString()}
                         </span>
-                      </div>
-                      <div className="mt-2 text-xs text-gray-500">
-                        Click to check value
                       </div>
                     </button>
                   ))}
@@ -137,36 +128,16 @@ const ModelSelector = ({ selectedBrand, onModelSelect }) => {
           ))}
         </div>
       ) : (
-        <div className="text-center py-16">
-          <Smartphone className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+        <div className="text-center py-12">
+          <Smartphone className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+          <h3 className="text-lg font-medium text-gray-800 mb-1">
             No models found
           </h3>
           <p className="text-sm text-gray-500">
-            {models.length === 0
-              ? `No ${selectedBrand.name} models available`
-              : "Try adjusting your search terms"}
+            {models.length === 0 ? "No models available" : "Try another search"}
           </p>
         </div>
       )}
-
-      {/* Help Box */}
-      <div className="mt-12 bg-blue-50 border border-blue-200 rounded-2xl px-5 py-6">
-        <div className="flex items-start gap-3">
-          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Smartphone className="w-5 h-5 text-blue-600" />
-          </div>
-          <div>
-            <h4 className="font-semibold text-blue-900 mb-1 text-sm sm:text-base">
-              Need help finding your model?
-            </h4>
-            <p className="text-blue-700 text-sm">
-              Look under Settings → About Phone or check your phone’s box or
-              receipt.
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

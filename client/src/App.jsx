@@ -16,7 +16,7 @@ function AppContent() {
 
     const timer = setTimeout(() => {
       updateModal(true);
-    }, 1000 * 60 * 10);
+    }, 1000 * 60 * 3);
 
     return () => clearTimeout(timer);
   }, []);

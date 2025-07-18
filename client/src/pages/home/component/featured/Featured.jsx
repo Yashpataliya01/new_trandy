@@ -8,6 +8,7 @@ const TrendingSpotlight = () => {
   const [product, setProduct] = useState(null);
   const API = "http://localhost:5000/api";
 
+  console.log(product, "produc anslskddbfdshubt");
   const fetchProducts = async () => {
     try {
       const url = `${API}/products/getproducts?tags=Most Trending`;
@@ -66,7 +67,12 @@ const TrendingSpotlight = () => {
           </p>
           <p
             onClick={() =>
-              navigate(`/products/${product._id}`, { state: product })
+              navigate(`/products/${product._id}`, {
+                state: {
+                  product: product,
+                  id: product?.category?._id,
+                },
+              })
             }
             className="inline-block bg-[#f4d370] text-black px-6 py-3 rounded-full text-sm font-medium tracking-wide hover:bg-[#f6ca36] transition"
           >

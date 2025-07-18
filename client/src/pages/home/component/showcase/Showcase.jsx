@@ -24,7 +24,7 @@ const categories = [
     title: "Curated picks for your mobile lifestyle.",
     description:
       "From wireless audio to power essentials – discover the ultimate accessory edits handpicked for trendsetters.",
-    cta: "ACCESSORIES EDIT",
+    cta: "ACCESSORIES",
     path: "Mobile Accessories",
   },
   {

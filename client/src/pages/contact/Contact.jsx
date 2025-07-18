@@ -1,13 +1,5 @@
 import React, { useState } from "react";
-import {
-  Phone,
-  Mail,
-  Instagram,
-  Facebook,
-  MapPin,
-  Clock,
-  ExternalLink,
-} from "lucide-react";
+import { Phone, Mail, Clock, ExternalLink } from "lucide-react";
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -17,7 +9,9 @@ const ContactPage = () => {
     phone: "",
     message: "",
   });
-  const address = "Shop Address Here, Bhilwara, RJ 311001, India";
+
+  const address =
+    "The Mobile Point, 56 Machinary Market, Nathdwara Saray, Near Shree Krishna Tower, Near Railway Station, Bhilwara, Rajasthan 311001";
   const encodedAddress = encodeURIComponent(address);
 
   const handleInputChange = (e) => {
@@ -28,13 +22,11 @@ const ContactPage = () => {
   };
 
   const handleOpenMaps = () => {
-    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
-    window.open(googleMapsUrl, "_blank");
+    window.open(`https://www.google.com/maps?q=${encodedAddress}`, "_blank");
   };
 
   const handleDirections = () => {
-    const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
-    window.open(directionsUrl, "_blank");
+    window.open("https://maps.app.goo.gl/iNsTNSggvMkKys2g8", "_blank");
   };
 
   const handleSubmit = () => {
@@ -52,24 +44,22 @@ const ContactPage = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Main Content Container */}
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
-          {/* Left Side - Contact Information */}
+          {/* Left Side - Contact Info */}
           <div className="space-y-8">
             <div>
               <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
                 Contact Us
               </h1>
               <p className="text-gray-600 text-lg leading-relaxed mb-2">
-                Email, call, or complete the form to learn how
+                Email, call, or complete the form to reach us.
               </p>
               <p className="text-gray-600 text-lg leading-relaxed">
-                Snappy can solve your messaging problem.
+                We're here to help you.
               </p>
             </div>
 
-            {/* Contact Details */}
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-gray-700" />
@@ -84,24 +74,19 @@ const ContactPage = () => {
               </div>
             </div>
 
-            {/* Support Sections */}
             <div className="grid md:grid-cols-3 gap-6 pt-8">
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">
                   Customer Support
                 </h3>
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  Our support team is available around the clock to address any
-                  concerns or queries you may have.
+                  Available Mon–Sat to assist with any issues.
                 </p>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">
-                  Feedback and Suggestions
-                </h3>
+                <h3 className="font-semibold text-gray-900 mb-2">Feedback</h3>
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  We value your feedback and are continuously working to improve
-                  Snappy. Your input is crucial in shaping the future of Snappy.
+                  Let us know how we can improve.
                 </p>
               </div>
               <div>
@@ -109,8 +94,7 @@ const ContactPage = () => {
                   Media Inquiries
                 </h3>
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  For media-related questions or press inquiries, please contact
-                  us at media@snappyapp.com.
+                  Contact us at media@snappyapp.com.
                 </p>
               </div>
             </div>
@@ -124,7 +108,6 @@ const ContactPage = () => {
             <p className="text-gray-600 mb-8">You can reach us anytime</p>
 
             <div className="space-y-6">
-              {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <input
                   type="text"
@@ -132,7 +115,7 @@ const ContactPage = () => {
                   value={formData.firstName}
                   onChange={handleInputChange}
                   placeholder="First name"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
                 <input
                   type="text"
@@ -140,11 +123,10 @@ const ContactPage = () => {
                   value={formData.lastName}
                   onChange={handleInputChange}
                   placeholder="Last name"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
               </div>
 
-              {/* Email Field */}
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -153,11 +135,10 @@ const ContactPage = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="Your email"
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
               </div>
 
-              {/* Phone Field */}
               <div className="relative">
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
                   <span className="text-sm text-gray-600">+91</span>
@@ -169,21 +150,19 @@ const ContactPage = () => {
                   value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="Phone number"
-                  className="w-full pl-16 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full pl-16 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
               </div>
 
-              {/* Message Field */}
               <textarea
                 name="message"
                 value={formData.message}
                 onChange={handleInputChange}
                 placeholder="How can we help?"
                 rows={4}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
               />
 
-              {/* Submit Button */}
               <button
                 onClick={handleSubmit}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
@@ -191,16 +170,13 @@ const ContactPage = () => {
                 Submit
               </button>
 
-              {/* Terms Text */}
               <p className="text-xs text-gray-500 text-center">
                 By contacting us, you agree to our{" "}
-                <span className="text-blue-600 cursor-pointer">
-                  Terms of service
-                </span>{" "}
-                and{" "}
+                <span className="text-blue-600 cursor-pointer">Terms</span> and{" "}
                 <span className="text-blue-600 cursor-pointer">
                   Privacy Policy
                 </span>
+                .
               </p>
             </div>
           </div>
@@ -208,47 +184,40 @@ const ContactPage = () => {
 
         {/* Map Section */}
         <div className="mt-16 grid lg:grid-cols-2 gap-12 items-center">
-          {/* Map Placeholder */}
-          <div className="bg-gray-100 rounded-2xl h-96 relative overflow-hidden">
-            {/* Google Maps Embedded View - No API required */}
+          <div className="bg-gray-100 rounded-2xl h-96 relative overflow-hidden border border-gray-300">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14319.234567890123!2d74.6414567890123!3d25.3467123456789!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396f5b7c8b8b8b8b%3A0x1234567890abcdef!2sBhilwara%2C%20Rajasthan%20311001%2C%20India!5e1!3m2!1sen!2sin!4v1640995200000!5m2!1sen!2sin"
+              title="The Mobile Point Area Map"
+              src="https://maps.google.com/maps?q=The+Mobile+Point,+56+Machinary+Market,+Nathdwara+Saray,+Near+Shree+Krishna+Tower,+Near+Railway+Station,+Bhilwara,+Rajasthan+311001&z=18&hl=en&output=embed"
               width="100%"
               height="100%"
-              style={{ border: 0 }}
-              allowFullScreen=""
               loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="rounded-2xl"
+              className="w-full h-full rounded-2xl"
             />
-
-            {/* Action buttons */}
             <div className="absolute bottom-4 right-4 flex space-x-2">
               <button
                 onClick={handleOpenMaps}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium flex items-center space-x-2"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center"
               >
-                <ExternalLink className="w-4 h-4" />
-                <span>Open in Maps</span>
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Open in Maps
               </button>
-            </div>
 
-            {/* Satellite view indicator */}
-            <div className="absolute top-4 right-4 bg-black bg-opacity-75 text-white px-3 py-1 rounded-full text-xs font-medium">
-              Satellite View
+              <button
+                onClick={handleDirections}
+                className="bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-gray-900 transition-colors text-sm font-medium"
+              >
+                Get Directions
+              </button>
             </div>
           </div>
 
-          {/* Location Information */}
           <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                Our Location
-              </h2>
-              <h3 className="text-3xl font-bold text-gray-900 mb-6">
-                Connecting Near and Far
-              </h3>
-            </div>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+              Our Location
+            </h2>
+            <h3 className="text-3xl font-bold text-gray-900 mb-6">
+              Connecting Near and Far
+            </h3>
 
             <div>
               <h4 className="text-lg font-semibold text-gray-900 mb-4">
@@ -256,9 +225,9 @@ const ContactPage = () => {
               </h4>
               <div className="space-y-2 text-gray-600">
                 <p className="font-medium">The Mobile Point</p>
-                <p>Bhilwara, Rajasthan</p>
-                <p>Shop Address Here</p>
-                <p>Bhilwara, RJ 311001</p>
+                <p>56 Machinary Market, Nathdwara Saray</p>
+                <p>Near Shree Krishna Tower, Near Railway Station</p>
+                <p>Bhilwara, Rajasthan 311001</p>
                 <p>India</p>
               </div>
             </div>
@@ -266,7 +235,7 @@ const ContactPage = () => {
             <div className="pt-4">
               <div className="flex items-center space-x-3 text-gray-600">
                 <Clock className="w-5 h-5" />
-                <span>Open: Mon-Sat 9:00 AM - 8:00 PM</span>
+                <span>Open: Mon–Sat 9:00 AM – 8:00 PM</span>
               </div>
             </div>
           </div>

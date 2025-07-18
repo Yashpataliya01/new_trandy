@@ -3,6 +3,9 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { ShoppingCart, User, Menu, X, Heart, LogOut } from "lucide-react";
 import { AppContext } from "../../context/AuthContext.jsx";
 
+// import logo
+import Logo from "../../assets/home/logo.png";
+
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -53,13 +56,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <div className="text-3xl font-light tracking-wide text-gray-900">
-              TMP
-              <span className="w-2 h-2 bg-black rounded-full inline-block ml-1 mb-2"></span>
-            </div>
-            <div className="ml-3 text-xs text-gray-500 font-medium tracking-wider">
-              THE MOBILE POINT
-            </div>
+            <img src={Logo} alt="" className="h-18 overflow-hidden" />
           </Link>
 
           {/* Desktop Nav */}
