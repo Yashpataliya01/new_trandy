@@ -8,7 +8,7 @@ import { useGetProductsQuery } from "../../../../services/productsApi";
 import img from "../../../../assets/home/homeBar.jpeg";
 
 const ProductShowcase = ({ title, id }) => {
-  console.log(id, "id");
+  const API_ORIGIN = import.meta.env.VITE_ENCODED_URL;
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -29,9 +29,7 @@ const ProductShowcase = ({ title, id }) => {
     const fetchWishlist = async () => {
       if (!user?.uid) return;
       try {
-        const res = await fetch(
-          `http://localhost:5000/api/wishlists/${user?.uid}`
-        );
+        const res = await fetch(`${API_ORIGIN}/api/wishlists/${user?.uid}`);
         const data = await res.json();
         const productIds = data.products?.map((item) => item.product._id) || [];
         setWishlist(productIds);
@@ -51,14 +49,11 @@ const ProductShowcase = ({ title, id }) => {
     const endpoint = isInWishlist ? "remove" : "add";
 
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/wishlists/${endpoint}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user.uid, productId }),
-        }
-      );
+      const res = await fetch(`${API_ORIGIN}/api/wishlists/${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.uid, productId }),
+      });
 
       const result = await res.json();
       if (!res.ok) return alert(result.message);

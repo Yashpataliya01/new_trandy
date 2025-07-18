@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 
 // Placeholder for API base URL (replace with your actual API URL)
-const API = "http://localhost:5000/api";
+const API = "https://new-trandy.onrender.com/api";
 
 // Dummy data to simulate API response
 const dummyProducts = [

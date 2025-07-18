@@ -5,6 +5,7 @@ import React, { createContext, useState, useEffect } from "react";
 const AppContext = createContext();
 
 const AppProvider = ({ children }) => {
+  const API_ORIGIN = import.meta.env.VITE_ENCODED_URL;
   const [favcart, setFavcart] = useState(0);
   const [showModal, setShowModal] = useState(false);
 
@@ -14,7 +15,7 @@ const AppProvider = ({ children }) => {
       if (user?.uid) {
         try {
           const res = await fetch(
-            `http://localhost:5000/api/carts/getCartByUser/${user.uid}`
+            `${API_ORIGIN}/api/carts/getCartByUser/${user.uid}`
           );
           const data = await res.json();
           setFavcart(data?.products?.length || 0);

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 
 const Users = () => {
+  const API_ORIGIN = import.meta.env.VITE_ENCODED_URL;
   const [search, setSearch] = useState("");
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/users");
+        const res = await fetch(`${API_ORIGIN}/api/users`);
         const data = await res.json();
         setUsers(data);
       } catch (err) {

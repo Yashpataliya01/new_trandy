@@ -1,8 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+const BASE_URL = import.meta.env.VITE_ENCODED_URL;
+
 export const productsApi = createApi({
   reducerPath: "productsApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/api/products/" }),
+  baseQuery: fetchBaseQuery({ baseUrl: `${BASE_URL}/api/products/` }),
   endpoints: (builder) => ({
     getProducts: builder.query({
       query: ({ page = 1, limit = 10, category, tags, sort, search, id }) => {
@@ -23,9 +25,7 @@ export const productsApi = createApi({
 
 export const categoriesApi = createApi({
   reducerPath: "categoriesApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/categories/",
-  }),
+  baseQuery: fetchBaseQuery({ baseUrl: `${BASE_URL}/api/categories/` }),
   endpoints: (builder) => ({
     getCategories: builder.query({
       query: () => "/",
@@ -36,7 +36,7 @@ export const categoriesApi = createApi({
 export const wishlistApi = createApi({
   reducerPath: "wishlistApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/wishlists/",
+    baseUrl: `${BASE_URL}/api/wishlists/`,
     prepareHeaders: (headers) => {
       const user = JSON.parse(localStorage.getItem("user"));
       if (user?.uid) {
@@ -73,7 +73,7 @@ export const wishlistApi = createApi({
 export const cartApi = createApi({
   reducerPath: "cartApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/carts/",
+    baseUrl: `${BASE_URL}/api/carts/`,
     prepareHeaders: (headers) => {
       const user = JSON.parse(localStorage.getItem("user"));
       if (user?.uid) {
@@ -117,9 +117,7 @@ export const cartApi = createApi({
 
 export const brandsApi = createApi({
   reducerPath: "brandsApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/mobiles/",
-  }),
+  baseQuery: fetchBaseQuery({ baseUrl: `${BASE_URL}/api/mobiles/` }),
   endpoints: (builder) => ({
     getBrands: builder.query({
       query: () => "/",
@@ -129,9 +127,7 @@ export const brandsApi = createApi({
 
 export const mobilesApi = createApi({
   reducerPath: "mobilesApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/mobiles/",
-  }),
+  baseQuery: fetchBaseQuery({ baseUrl: `${BASE_URL}/api/mobiles/` }),
   endpoints: (builder) => ({
     getMobiles: builder.query({
       query: (brandId) => `getMobiles?brand=${brandId}`,
@@ -141,9 +137,7 @@ export const mobilesApi = createApi({
 
 export const discountsApi = createApi({
   reducerPath: "discountsApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/discounts/",
-  }),
+  baseQuery: fetchBaseQuery({ baseUrl: `${BASE_URL}/api/discounts/` }),
   endpoints: (builder) => ({
     getDiscounts: builder.query({
       query: () => "/",
@@ -152,6 +146,7 @@ export const discountsApi = createApi({
   }),
 });
 
+// Export hooks
 export const { useGetProductsQuery } = productsApi;
 export const { useGetCategoriesQuery } = categoriesApi;
 export const {

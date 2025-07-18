@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Edit3, Trash2, Save, X, Search, Loader2 } from "lucide-react";
 
 const CategoryManagement = () => {
+  const API_ORIGIN = import.meta.env.VITE_ENCODED_URL;
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -12,7 +13,7 @@ const CategoryManagement = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({ name: "", description: "" });
 
-  const API = "http://localhost:5000/api/categories";
+  const API = `${API_ORIGIN}/api/categories`;
 
   const getAllCategories = async () => {
     setLoading(true);

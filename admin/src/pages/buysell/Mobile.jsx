@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 const MobileVariants = () => {
+  const API_ORIGIN = import.meta.env.VITE_ENCODED_URL;
   const location = useLocation();
   const cat = location.state || {};
   const [mobiles, setMobiles] = useState([]);
@@ -32,7 +33,7 @@ const MobileVariants = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const API = "http://localhost:5000/api";
+  const API = `${API_ORIGIN}/api`;
 
   // Fetch all mobiles
   const fetchMobiles = async () => {

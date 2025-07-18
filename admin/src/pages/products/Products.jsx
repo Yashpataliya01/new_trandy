@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 const ProductPanel = () => {
+  const API_ORIGIN = import.meta.env.VITE_ENCODED_URL;
   const location = useLocation();
   const cat = location.state || {};
   const [products, setProducts] = useState([]);
@@ -32,7 +33,7 @@ const ProductPanel = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const tagOptions = ["Best Seller", "Trending", "New", "Sale"];
-  const API = "http://localhost:5000/api";
+  const API = `${API_ORIGIN}/api`;
 
   const fetchProducts = async () => {
     setLoading(true);

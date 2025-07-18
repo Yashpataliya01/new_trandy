@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 const Wishlist = () => {
+  const API_ORIGIN = import.meta.env.VITE_ENCODED_URL;
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
   const [wishlist, setWishlist] = useState([]);
@@ -16,9 +17,7 @@ const Wishlist = () => {
 
     const fetchWishlist = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:5000/api/wishlists/${user.uid}`
-        );
+        const res = await fetch(`${API_ORIGIN}/api/wishlists/${user.uid}`);
         const data = await res.json();
         setWishlist(data.products || []);
       } catch (err) {
@@ -31,7 +30,7 @@ const Wishlist = () => {
 
   const removeFromWishlist = async (productId) => {
     try {
-      const res = await fetch("http://localhost:5000/api/wishlists/remove", {
+      const res = await fetch(`${API_ORIGIN}/api/wishlists/remove`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: user.uid, productId }),

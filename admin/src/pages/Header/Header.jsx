@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Plus, Edit3, Trash2, X, Save, Loader2, ImagePlus } from "lucide-react";
 
 // Placeholder for API base URL (replace with your actual API URL)
-const API = "http://localhost:5000/api";
 
 const Header = () => {
+  const API_ORIGIN = import.meta.env.VITE_ENCODED_URL;
+  const API = `${API_ORIGIN}/api`;
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);

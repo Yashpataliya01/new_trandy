@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Edit3, Trash2, Save, X, Search, Loader2 } from "lucide-react";
 
 const BuySell = () => {
+  const API_ORIGIN = import.meta.env.VITE_ENCODED_URL;
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -12,7 +13,7 @@ const BuySell = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({ name: "" });
 
-  const API = "http://localhost:5000/api/mobiles";
+  const API = `${API_ORIGIN}/api/mobiles`;
 
   const getAllCategories = async () => {
     setLoading(true);

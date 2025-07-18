@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 
-const API_URL = "http://localhost:5000/api/discounts";
-
 const AdminDiscounts = () => {
+  const API_ORIGIN = import.meta.env.VITE_ENCODED_URL;
+  const API_URL = `${API_ORIGIN}/api/discounts`;
   const [discounts, setDiscounts] = useState([]);
   const [form, setForm] = useState({ name: "", discountPercent: "" });
   const [editingId, setEditingId] = useState(null);

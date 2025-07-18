@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 
 const UserInfoModal = ({ onClose }) => {
+  const API_ORIGIN = import.meta.env.VITE_ENCODED_URL;
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,7 +19,7 @@ const UserInfoModal = ({ onClose }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch("http://localhost:5000/api/users/create", {
+      const res = await fetch(`${API_ORIGIN}/api/users/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
