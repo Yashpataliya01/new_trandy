@@ -4,14 +4,12 @@ import ShopCategory from "../models/shopCategory.js"; // Adjust the path to your
 export const showShopCategories = async (req, res) => {
   try {
     const { id } = req.params;
-    if (id) {
-      const category = await ShopCategory.findById(id);
-      if (!category) {
-        return res.status(404).json({ message: "Shop category not found" });
-      }
-      return res.status(200).json(category);
+    const query = id ? { _id: id } : {};
+    const category = await ShopCategory.findOne(query);
+    if (id && !category) {
+      return res.status(404).json({ message: "Shop category not found" });
     }
-    const categories = await ShopCategory.find();
+    const categories = id ? [category] : await ShopCategory.find();
     res.status(200).json(categories);
   } catch (error) {
     console.error(error);

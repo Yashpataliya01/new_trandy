@@ -7,7 +7,8 @@ import {
 import express from "express";
 const router = express.Router();
 
-router.get("/categories", showShopCategories); // :id? makes ID optional
+router.get("/categories", showShopCategories); // Fetch all categories
+router.get("/categories/:id", showShopCategories);
 router.post("/categories", createShopCategory);
 router.put("/categories/:id", editShopCategory);
 router.delete("/categories/:id", deleteShopCategory);
