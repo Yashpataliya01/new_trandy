@@ -4,12 +4,16 @@ import ShopCategory from "../models/shopCategory.js"; // Adjust the path to your
 export const showShopCategories = async (req, res) => {
   try {
     const { id } = req.params;
-    const query = id ? { _id: id } : {};
-    const category = await ShopCategory.findOne(query);
-    if (id && !category) {
-      return res.status(404).json({ message: "Shop category not found" });
+    if (id) {
+      // Fetch a single category by ID with its parent category populated
+      const category = await ShopCategory.findById(id).populate("category");
+      if (!category) {
+        return res.status(404).json({ message: "Shop category not found" });
+      }
+      return res.status(200).json(category);
     }
-    const categories = id ? [category] : await ShopCategory.find();
+    // Fetch all categories with their parent categories populated
+    const categories = await ShopCategory.find().populate("category");
     res.status(200).json(categories);
   } catch (error) {
     console.error(error);
@@ -20,21 +24,26 @@ export const showShopCategories = async (req, res) => {
 // Create a new shop category
 export const createShopCategory = async (req, res) => {
   try {
-    const { name, description, image } = req.body;
-    if (!name || !description || !image) {
+    const { name, description, image, category } = req.body;
+    if (!name || !description || !image || !category) {
       return res.status(400).json({
-        message: "All fields (name, description, image) are required",
+        message: "All fields (name, description, image, category) are required",
       });
     }
     const existingCategory = await ShopCategory.findOne({ name });
     if (existingCategory) {
       return res.status(400).json({ message: "Category name already exists" });
     }
-    const category = new ShopCategory({ name, description, image });
-    await category.save();
+    const newCategory = new ShopCategory({
+      name,
+      description,
+      image,
+      category,
+    });
+    await newCategory.save();
     res
       .status(201)
-      .json({ message: "Shop category created successfully", category });
+      .json({ message: "Shop category created successfully", newCategory });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to create shop category", error });
@@ -45,14 +54,14 @@ export const createShopCategory = async (req, res) => {
 export const editShopCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, image } = req.body;
-    if (!name || !description || !image) {
+    const { name, description, image, category } = req.body;
+    if (!name || !description || !image || !category) {
       return res.status(400).json({
-        message: "All fields (name, description, image) are required",
+        message: "All fields (name, description, image, category) are required",
       });
     }
-    const category = await ShopCategory.findById(id);
-    if (!category) {
+    const categoryToUpdate = await ShopCategory.findById(id);
+    if (!categoryToUpdate) {
       return res.status(404).json({ message: "Shop category not found" });
     }
     // Check for duplicate name, excluding the current category
@@ -63,13 +72,15 @@ export const editShopCategory = async (req, res) => {
     if (existingCategory) {
       return res.status(400).json({ message: "Category name already exists" });
     }
-    category.name = name;
-    category.description = description;
-    category.image = image;
-    await category.save();
-    res
-      .status(200)
-      .json({ message: "Shop category updated successfully", category });
+    categoryToUpdate.name = name;
+    categoryToUpdate.description = description;
+    categoryToUpdate.image = image;
+    categoryToUpdate.category = category;
+    await categoryToUpdate.save();
+    res.status(200).json({
+      message: "Shop category updated successfully",
+      categoryToUpdate,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to update shop category", error });

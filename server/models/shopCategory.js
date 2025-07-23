@@ -16,6 +16,11 @@ const shopCategorySchema = new mongoose.Schema({
     type: Array,
     required: true,
   },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "Categorie",
+  },
 });
 
 const ShopCategory = mongoose.model("ShopCategory", shopCategorySchema);

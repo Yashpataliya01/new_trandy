@@ -21,21 +21,39 @@ const CategoryPanel = () => {
     name: "",
     description: "",
     image: [],
+    category: "",
   });
   const [searchTerm, setSearchTerm] = useState("");
+  const [allCategories, setAllCategories] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch all categories
+  // Fetch all shop categories
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API}/shopCategories`);
+      const res = await fetch(`${API}/shopCategories/categories`);
       const data = await res.json();
       if (!res.ok)
         throw new Error(data?.message || "Failed to fetch categories");
       setCategories(data);
     } catch (error) {
       alert("Failed to load categories");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch all parent categories
+  const getAllCategories = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API}/categories`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || "Failed to fetch");
+      setAllCategories(data);
+    } catch (err) {
+      alert("Failed to load categories.");
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -75,12 +93,13 @@ const CategoryPanel = () => {
       const payload = {
         ...formData,
         image: imageUrls,
+        category: formData.category,
       };
 
       const method = editCategory ? "PUT" : "POST";
       const endpoint = editCategory
-        ? `${API}/shopCategories/${editCategory._id}`
-        : `${API}/shopCategories`;
+        ? `${API}/shopCategories/categories/${editCategory._id}`
+        : `${API}/shopCategories/categories`;
 
       const res = await fetch(endpoint, {
         method,
@@ -106,7 +125,7 @@ const CategoryPanel = () => {
     if (!window.confirm("Are you sure you want to delete this category?"))
       return;
     try {
-      const res = await fetch(`${API}/shopCategories/${id}`, {
+      const res = await fetch(`${API}/shopCategories/categories/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Delete failed");
@@ -124,6 +143,7 @@ const CategoryPanel = () => {
       name: category?.name || "",
       description: category?.description || "",
       image: [],
+      category: category?.category?._id || "",
     });
     setIsModalOpen(true);
   };
@@ -153,6 +173,7 @@ const CategoryPanel = () => {
 
   useEffect(() => {
     fetchCategories();
+    getAllCategories();
   }, []);
 
   return (
@@ -227,7 +248,11 @@ const CategoryPanel = () => {
                     {category.description}
                   </p>
                   <div className="flex justify-between items-center">
-                    <div />
+                    <div>
+                      <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                        {category.category?.name || "No Parent Category"}
+                      </span>
+                    </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() => openModal(category)}
@@ -315,6 +340,27 @@ const CategoryPanel = () => {
                     }
                     className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   />
+                </div>
+
+                {/* Category Selection */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Parent Category *
+                  </label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) =>
+                      setFormData({ ...formData, category: e.target.value })
+                    }
+                    className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  >
+                    <option value="">Select a parent category</option>
+                    {allCategories.map((cat) => (
+                      <option key={cat._id} value={cat._id}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Image Upload */}
