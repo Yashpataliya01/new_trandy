@@ -18,6 +18,7 @@ import WishlistRoute from "./routes/wishlist.routes.js";
 import UserRoute from "./routes/user.route.js";
 import discountRoute from "./routes/discount.route.js";
 import HomeRoute from "./routes/home.route.js";
+import ShopCategory from "./routes/shopCategory.route.js";
 
 // Middleware
 app.use(cors());
@@ -39,6 +40,7 @@ app.use("/api/wishlists", WishlistRoute);
 app.use("/api/users", UserRoute);
 app.use("/api/discounts", discountRoute);
 app.use("/api/home", HomeRoute);
+app.use("/api/shopCategories", ShopCategory);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

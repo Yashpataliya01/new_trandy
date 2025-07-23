@@ -80,7 +80,7 @@ const Cart = () => {
     try {
       await updateQuantity({
         user: user.uid,
-        productId: product.product._id,
+        productId: product?.product?._id,
         quantity: newQuantity,
       }).unwrap();
     } catch (error) {
@@ -113,7 +113,7 @@ const Cart = () => {
     try {
       await removeFromCart({
         user: user.uid,
-        productId: item.product._id,
+        productId: item.product?._id,
       }).unwrap();
     } catch (error) {
       console.error("Error removing item:", error);
@@ -133,7 +133,7 @@ const Cart = () => {
   const subtotal =
     cartData?.products?.reduce(
       (sum, { product }, index) =>
-        sum + product.discountedPrice * (quantities[index] || 1),
+        sum + product?.discountedPrice * (quantities[index] || 1),
       0
     ) || 0;
 
@@ -145,9 +145,9 @@ const Cart = () => {
 
   const totalSavings =
     (cartData?.products?.reduce((sum, { product }, index) => {
-      if (product.originalPrice) {
+      if (product?.originalPrice) {
         const savings =
-          (product.originalPrice - product.discountedPrice) *
+          (product?.originalPrice - product?.discountedPrice) *
           (quantities[index] || 1);
         return sum + savings;
       }
@@ -199,7 +199,7 @@ const Cart = () => {
                     <div
                       className="w-32 h-32 lg:w-40 lg:h-40 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100"
                       onClick={() =>
-                        navigate(`/products/${item.product._id}`, {
+                        navigate(`/products/${item.product?._id}`, {
                           state: {
                             product: item.product,
                             id: item?.product?.category,
@@ -208,8 +208,8 @@ const Cart = () => {
                       }
                     >
                       <img
-                        src={item.product.image[0]}
-                        alt={item.product.name}
+                        src={item?.product?.image[0]}
+                        alt={item?.product?.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
@@ -219,20 +219,21 @@ const Cart = () => {
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex-1 pr-4">
                           <div className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-2">
-                            {item.product.brand}
+                            {item?.product?.brand}
                           </div>
                           <h2 className="text-xl text-gray-900 mb-3 leading-tight">
-                            {item.product.name}
+                            {item?.product?.name}
                           </h2>
                           <div className="flex items-baseline gap-3 mb-4">
                             <span className="text-2xl font-semibold text-gray-900">
-                              ₹{item.product.discountedPrice.toLocaleString()}
+                              ₹{item?.product?.discountedPrice.toLocaleString()}
                             </span>
-                            {item.product.originalPrice &&
-                              item.product.originalPrice >
-                                item.product.discountedPrice && (
+                            {item?.product?.originalPrice &&
+                              item?.product?.originalPrice >
+                                item?.product?.discountedPrice && (
                                 <span className="text-lg text-gray-400 line-through">
-                                  ₹{item.product.originalPrice.toLocaleString()}
+                                  ₹
+                                  {item.product?.originalPrice.toLocaleString()}
                                 </span>
                               )}
                           </div>

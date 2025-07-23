@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 import {
   Plus,
   Edit3,
@@ -8,53 +7,43 @@ import {
   Save,
   Search,
   Loader2,
-  Upload,
   ImagePlus,
 } from "lucide-react";
 
-const ProductPanel = () => {
+const CategoryPanel = () => {
   const API_ORIGIN = import.meta.env.VITE_ENCODED_URL;
-  const location = useLocation();
-  const cat = location.state || {};
-  const [products, setProducts] = useState([]);
+  const API = `${API_ORIGIN}/api`;
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editProduct, setEditProduct] = useState(null);
+  const [editCategory, setEditCategory] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    price: "",
-    discountedPrice: "",
-    category: cat?._id,
     image: [],
-    tags: "", // Changed from array to string
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const tagOptions = ["Best Seller", "Trending", "New", "Sale"];
-  const API = `${API_ORIGIN}/api`;
-
-  const fetchProducts = async () => {
+  // Fetch all categories
+  const fetchCategories = async () => {
     setLoading(true);
     try {
-      const url = `${API}/products/${
-        cat?._id ? `?category=${encodeURIComponent(cat?._id)}` : ""
-      }`;
-      const res = await fetch(url);
+      const res = await fetch(`${API}/shopCategories`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.message || "Failed to fetch products");
-      setProducts(data);
+      if (!res.ok)
+        throw new Error(data?.message || "Failed to fetch categories");
+      setCategories(data);
     } catch (error) {
-      alert("Failed to load products");
+      alert("Failed to load categories");
     } finally {
       setLoading(false);
     }
   };
 
+  // Upload images to Cloudinary
   const uploadImagesToCloudinary = async (files) => {
     const urls = [];
-
     for (const file of files) {
       const formData = new FormData();
       formData.append("file", file);
@@ -75,13 +64,12 @@ const ProductPanel = () => {
         console.error("Image upload failed:", err);
       }
     }
-
     return urls;
   };
 
-  const handleSaveProduct = async () => {
+  // Handle save (create or update) category
+  const handleSaveCategory = async () => {
     setIsSubmitting(true);
-
     try {
       const imageUrls = await uploadImagesToCloudinary(formData.image);
       const payload = {
@@ -89,10 +77,10 @@ const ProductPanel = () => {
         image: imageUrls,
       };
 
-      const method = editProduct ? "PUT" : "POST";
-      const endpoint = editProduct
-        ? `${API}/products/update/${editProduct._id}`
-        : `${API}/products/create`;
+      const method = editCategory ? "PUT" : "POST";
+      const endpoint = editCategory
+        ? `${API}/shopCategories/${editCategory._id}`
+        : `${API}/shopCategories`;
 
       const res = await fetch(endpoint, {
         method,
@@ -103,53 +91,50 @@ const ProductPanel = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Save failed");
 
-      alert(`Product ${editProduct ? "updated" : "created"} successfully`);
+      alert(`Category ${editCategory ? "updated" : "created"} successfully`);
       setIsModalOpen(false);
-      await fetchProducts();
+      await fetchCategories();
     } catch (err) {
-      alert("Failed to save product.");
+      alert("Failed to save category.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDeleteProduct = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?"))
+  // Handle delete category
+  const handleDeleteCategory = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this category?"))
       return;
     try {
-      const res = await fetch(`${API}/products/delete/${id}`, {
+      const res = await fetch(`${API}/shopCategories/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Delete failed");
-      alert("Product deleted successfully");
-      await fetchProducts();
+      alert("Category deleted successfully");
+      await fetchCategories();
     } catch (err) {
-      alert("Failed to delete product.");
+      alert("Failed to delete category.");
     }
   };
 
-  const openModal = (product = null) => {
-    setEditProduct(product);
+  // Open modal for create/edit
+  const openModal = (category = null) => {
+    setEditCategory(category);
     setFormData({
-      name: product?.name || "",
-      description: product?.description || "",
-      price: product?.price || "",
-      discountedPrice: product?.discountedPrice || "",
+      name: category?.name || "",
+      description: category?.description || "",
       image: [],
-      category: cat?._id,
-      tags: product?.tags || "", // Changed from array to string
     });
     setIsModalOpen(true);
   };
 
-  // Handle file input change - add new files to existing ones
+  // Handle file input change
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files);
     setFormData((prev) => ({
       ...prev,
       image: [...prev.image, ...newFiles],
     }));
-    // Reset the file input
     e.target.value = "";
   };
 
@@ -161,20 +146,13 @@ const ProductPanel = () => {
     }));
   };
 
-  // Handle single tag selection
-  const selectTag = (tag) => {
-    setFormData((prev) => ({
-      ...prev,
-      tags: prev.tags === tag ? "" : tag, // Toggle selection or deselect if same tag
-    }));
-  };
-
-  const filteredProducts = products.filter(({ name, description }) =>
+  // Filter categories based on search term
+  const filteredCategories = categories.filter(({ name, description }) =>
     `${name} ${description}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   useEffect(() => {
-    fetchProducts();
+    fetchCategories();
   }, []);
 
   return (
@@ -184,16 +162,18 @@ const ProductPanel = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {cat?.name} Panel
+                Category Panel
               </h1>
-              <p className="text-gray-600">Manage your products with ease</p>
+              <p className="text-gray-600">
+                Manage your shop categories with ease
+              </p>
             </div>
             <button
               onClick={() => openModal()}
               disabled={loading}
               className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center gap-2 disabled:opacity-50 shadow-lg hover:shadow-xl"
             >
-              <Plus className="w-5 h-5" /> Add Product
+              <Plus className="w-5 h-5" /> Add Category
             </button>
           </div>
 
@@ -201,7 +181,7 @@ const ProductPanel = () => {
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search categories..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm"
@@ -213,26 +193,26 @@ const ProductPanel = () => {
           <div className="flex justify-center py-20">
             <div className="flex flex-col items-center gap-4">
               <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
-              <p className="text-gray-500">Loading products...</p>
+              <p className="text-gray-500">Loading categories...</p>
             </div>
           </div>
-        ) : filteredProducts.length > 0 ? (
+        ) : filteredCategories.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
+            {filteredCategories.map((category) => (
               <div
-                key={product._id}
+                key={category._id}
                 className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden group"
               >
                 <div className="relative w-full h-64 overflow-hidden">
                   <img
-                    src={product.image?.[0]}
-                    alt={product.name}
+                    src={category.image?.[0]}
+                    alt={category.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  {product.image?.length >= 2 && (
+                  {category.image?.length >= 2 && (
                     <img
-                      src={product.image?.[1]}
-                      alt={`${product.name} alt`}
+                      src={category.image?.[1]}
+                      alt={`${category.name} alt`}
                       className="w-full h-full object-cover absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     />
                   )}
@@ -241,41 +221,22 @@ const ProductPanel = () => {
 
                 <div className="p-5">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                    {product.name}
+                    {category.name}
                   </h3>
                   <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                    {product.description}
+                    {category.description}
                   </p>
-
-                  {/* Display single tag if exists */}
-                  {product.tags && (
-                    <div className="mb-3">
-                      <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                        {product.tags}
-                      </span>
-                    </div>
-                  )}
-
                   <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      {product.discountedPrice && (
-                        <span className="text-xl font-bold text-green-600">
-                          ₹{product.discountedPrice}
-                        </span>
-                      )}
-                      <span className="text-sm text-gray-400 line-through">
-                        ₹{product.price}
-                      </span>
-                    </div>
+                    <div />
                     <div className="flex gap-2">
                       <button
-                        onClick={() => openModal(product)}
+                        onClick={() => openModal(category)}
                         className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all duration-200"
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDeleteProduct(product._id)}
+                        onClick={() => handleDeleteCategory(category._id)}
                         className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-all duration-200"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -290,26 +251,25 @@ const ProductPanel = () => {
           <div className="text-center py-20">
             <Search className="w-16 h-16 text-gray-300 mx-auto mb-6" />
             <h3 className="text-xl font-semibold text-gray-900 mb-3">
-              No products found
+              No categories found
             </h3>
             <p className="text-gray-500 mb-6">
-              {products.length === 0
-                ? "Start by adding your first product"
+              {categories.length === 0
+                ? "Start by adding your first category"
                 : "Try adjusting your search terms"}
             </p>
           </div>
         )}
       </div>
 
-      {/* Modern Modal */}
+      {/* Modal for Create/Edit */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl max-h-[90vh]">
-            {/* Header */}
             <div className="flex justify-between items-center p-6 border-b border-gray-100">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {editProduct ? "Edit Product" : "Add New Product"}
+                  {editCategory ? "Edit Category" : "Add New Category"}
                 </h2>
                 <p className="text-sm text-gray-500 mt-1">
                   Fill in the details below
@@ -324,17 +284,16 @@ const ProductPanel = () => {
               </button>
             </div>
 
-            {/* Form Content */}
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
               <div className="space-y-6">
-                {/* Product Name */}
+                {/* Category Name */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Product Name *
+                    Category Name *
                   </label>
                   <input
                     type="text"
-                    placeholder="Enter product name"
+                    placeholder="Enter category name"
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
@@ -346,10 +305,10 @@ const ProductPanel = () => {
                 {/* Description */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Description
+                    Description *
                   </label>
                   <textarea
-                    placeholder="Describe your product..."
+                    placeholder="Describe the category..."
                     value={formData.description}
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
@@ -358,77 +317,11 @@ const ProductPanel = () => {
                   />
                 </div>
 
-                {/* Price Fields */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Price *
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="0.00"
-                      value={formData.price}
-                      onChange={(e) =>
-                        setFormData({ ...formData, price: e.target.value })
-                      }
-                      className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Discounted Price
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="0.00"
-                      value={formData.discountedPrice}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          discountedPrice: e.target.value,
-                        })
-                      }
-                      className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    />
-                  </div>
-                </div>
-
-                {/* Single Tag Selection */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Tag (Select One)
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {tagOptions.map((tag) => (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => selectTag(tag)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                          formData.tags === tag
-                            ? "bg-blue-600 text-white shadow-lg"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
-                      >
-                        {tag}
-                      </button>
-                    ))}
-                  </div>
-                  {formData.tags && (
-                    <p className="text-sm text-gray-500 mt-2">
-                      Selected:{" "}
-                      <span className="font-medium">{formData.tags}</span>
-                    </p>
-                  )}
-                </div>
-
                 {/* Image Upload */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Product Images
+                    Category Images *
                   </label>
-
-                  {/* Upload Button */}
                   <div className="mb-4">
                     <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group">
                       <div className="text-center">
@@ -471,7 +364,6 @@ const ProductPanel = () => {
               </div>
             </div>
 
-            {/* Footer */}
             <div className="p-6 border-t border-gray-100 bg-gray-50">
               <div className="flex gap-3 justify-end">
                 <button
@@ -482,7 +374,7 @@ const ProductPanel = () => {
                   Cancel
                 </button>
                 <button
-                  onClick={handleSaveProduct}
+                  onClick={handleSaveCategory}
                   disabled={isSubmitting}
                   className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center gap-2 disabled:opacity-50 shadow-lg"
                 >
@@ -494,7 +386,7 @@ const ProductPanel = () => {
                   ) : (
                     <>
                       <Save className="w-5 h-5" />
-                      {editProduct ? "Update Product" : "Save Product"}
+                      {editCategory ? "Update Category" : "Save Category"}
                     </>
                   )}
                 </button>
@@ -507,4 +399,4 @@ const ProductPanel = () => {
   );
 };
 
-export default ProductPanel;
+export default CategoryPanel;

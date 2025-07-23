@@ -160,9 +160,16 @@ const ProductShowcase = ({ title, id }) => {
                   <p className="text-xs sm:text-sm text-gray-500 line-clamp-2">
                     {product.description}
                   </p>
-                  <p className="text-sm font-semibold text-gray-900">
-                    ₹{product.discountedPrice || product.price}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    {product.discountedPrice && (
+                      <span className="text-xl font-bold text-green-600">
+                        ₹{product.discountedPrice}
+                      </span>
+                    )}
+                    <span className="text-sm text-gray-400 line-through">
+                      ₹{product.price}
+                    </span>
+                  </div>
                 </div>
               </motion.div>
             ))}

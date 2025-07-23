@@ -26,7 +26,7 @@ const AdminNavbar = () => {
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden lg:flex items-center space-x-1">
             <Link
               to="/"
               className="px-4 py-2 text-slate-300 hover:text-white hover:bg-white/10 font-medium rounded-lg transition-all duration-200 relative group"
@@ -69,10 +69,17 @@ const AdminNavbar = () => {
               Most Tranding
               <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-400 group-hover:w-full transition-all duration-300"></div>
             </Link>
+            <Link
+              to="/category"
+              className="px-4 py-2 text-slate-300 hover:text-white hover:bg-white/10 font-medium rounded-lg transition-all duration-200 relative group"
+            >
+              Shop By Category
+              <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-400 group-hover:w-full transition-all duration-300"></div>
+            </Link>
           </div>
 
           {/* Right Section */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-4">
             {/* Notifications */}
             <div className="relative">
               <button
@@ -153,7 +160,7 @@ const AdminNavbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
+          <div className="lg:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
@@ -186,7 +193,7 @@ const AdminNavbar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-slate-800/95 backdrop-blur-xl border-t border-slate-700/50">
+        <div className="lg:hidden bg-slate-800/95 backdrop-blur-xl border-t border-slate-700/50">
           <div className="px-6 py-4 space-y-2">
             <Link
               to="/"
@@ -223,6 +230,12 @@ const AdminNavbar = () => {
               className="flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-white/10 font-medium rounded-lg transition-all duration-200"
             >
               Most Tranding
+            </Link>
+            <Link
+              to="/category"
+              className="flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-white/10 font-medium rounded-lg transition-all duration-200"
+            >
+              Shop By Category
             </Link>
             <hr className="my-3 border-slate-700/50" />
             <div className="flex items-center px-4 py-3">
