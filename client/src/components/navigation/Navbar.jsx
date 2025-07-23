@@ -51,13 +51,16 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white border-b border-gray-100">
+    <nav className="border-b border-gray-100">
       <div className="max-w-6xl mx-auto px-6">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <img src={Logo} alt="" className="h-18 overflow-hidden" />
-          </Link>
+          <div>
+            <Link to="/" className="flex items-center">
+              <img src={Logo} alt="" className="h-16 overflow-hidden" />
+            </Link>
+            <p className="text-sm text-gray-500">Viral Products</p>
+          </div>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-12">
@@ -92,13 +95,18 @@ const Navbar = () => {
 
           {/* Right Icons */}
           <div className="flex items-center space-x-6 relative">
-            <Link to="/wishlist">
-              <Heart className="w-5 h-5 text-gray-600" />
+            <Link to="/wishlist" className="group relative">
+              <div className="w-8 h-8 flex items-center justify-center  rounded-full shadow-md transform group-hover:translate-y-[1px] group-hover:shadow-lg transition">
+                <Heart className="w-5 h-5 text-gray-600 fill-red-500" />
+              </div>
             </Link>
-            <Link to="/cart" className="relative">
-              <ShoppingCart className="w-5 h-5 text-gray-600" />
+
+            <Link to="/cart" className="relative group">
+              <div className="w-8 h-8 flex items-center justify-center rounded-full shadow-md transform group-hover:translate-y-[1px] group-hover:shadow-lg transition">
+                <ShoppingCart className="w-5 h-5 text-gray-600" />
+              </div>
               {favcart > 0 && (
-                <div className="absolute bottom-3 left-4 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
+                <div className="absolute bottom-3 left-4 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs shadow-md">
                   {favcart}
                 </div>
               )}
@@ -106,9 +114,12 @@ const Navbar = () => {
 
             {/* User Dropdown */}
             <div className="relative" ref={dropdownRef}>
-              <button onClick={handleUserClick}>
-                <User className="w-5 h-5 text-gray-600" />
+              <button onClick={handleUserClick} className="group relative">
+                <div className="w-8 h-8 flex items-center justify-center  rounded-full shadow-md transform group-hover:translate-y-[1px] group-hover:shadow-lg transition">
+                  <User className="w-5 h-5 text-gray-600" />
+                </div>
               </button>
+
               {user && showDropdown && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-100 rounded-md shadow-lg py-2 z-50">
                   <button

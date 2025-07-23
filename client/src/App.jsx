@@ -21,9 +21,9 @@ function AppContent() {
     return () => clearTimeout(timer);
   }, []);
 
-  const whatsappNumber = "+918112261905";
+  const whatsappNumber = "+919571717571";
   const prefilledMessage = encodeURIComponent(
-    "Hello! I'm interested in learning more about your products/services. Can you provide more details?"
+    "Hi TMP Team! I saw products on your website and want to know more. Please assist me."
   );
   const isDesktopApp = navigator.userAgent.includes("WhatsApp");
   const whatsappLink = isDesktopApp

@@ -33,8 +33,6 @@ const CategoryShowcase = () => {
     fetchShopCategories();
   }, []);
 
-  console.log(shopCategories);
-
   // If loading, show a placeholder
   if (loading) {
     return (
@@ -179,7 +177,7 @@ const CategoryShowcase = () => {
                 </p>
                 <Link
                   to={`/products`}
-                  state={{ category: selectedCategory?.name || "" }}
+                  state={{ category: selectedCategory?.category?.name || "" }}
                   className="bg-black text-white px-6 py-3 text-sm tracking-wide rounded hover:bg-gray-800 transition"
                 >
                   SHOP NOW

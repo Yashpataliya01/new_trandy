@@ -38,7 +38,6 @@ const MostTranding = () => {
       const res = await fetch(url);
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Failed to fetch products");
-      console.log(data, "my products");
       setProducts(data.products);
     } catch (error) {
       alert("Failed to load products");

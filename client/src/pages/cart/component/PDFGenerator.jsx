@@ -220,13 +220,13 @@ const generatePDFContent = (
 const uploadToCloudinary = async (pdfBlob) => {
   const formData = new FormData();
   formData.append("file", pdfBlob, "cart_summary.pdf");
-  formData.append("upload_preset", "ml_default");
-  formData.append("cloud_name", "dlyq8wjky");
+  formData.append("upload_preset", "pnmzh8qk");
+  formData.append("cloud_name", "dysvhtqxi");
   formData.append("resource_type", "raw");
 
   try {
     const res = await fetch(
-      "https://api.cloudinary.com/v1_1/dlyq8wjky/raw/upload",
+      "https://api.cloudinary.com/v1_1/dysvhtqxi/raw/upload",
       {
         method: "POST",
         body: formData,
@@ -275,7 +275,7 @@ const CartPDFGenerator = ({
       const pdfBlob = doc.output("blob");
       const pdfUrl = await uploadToCloudinary(pdfBlob);
       const message = `New order invoice: ${pdfUrl}`;
-      const phoneNumber = "8112261905";
+      const phoneNumber = "9571717571";
 
       // Try WhatsApp app custom scheme first
       const whatsappAppUrl = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(

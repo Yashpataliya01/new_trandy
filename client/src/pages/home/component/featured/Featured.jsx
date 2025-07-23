@@ -8,7 +8,6 @@ const TrendingSpotlight = () => {
   const [product, setProduct] = useState(null);
   const API = "https://new-trandy.onrender.com/api";
 
-  console.log(product, "produc anslskddbfdshubt");
   const fetchProducts = async () => {
     try {
       const url = `${API}/products/getproducts?tags=Most Trending`;
