@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import { X } from "lucide-react";
 
 const UserInfoModal = ({ onClose }) => {
+  const currentPath = window.location.pathname;
+  console.log(currentPath);
   const API_ORIGIN = import.meta.env.VITE_ENCODED_URL;
   const [formData, setFormData] = useState({
     name: "",
@@ -11,6 +14,17 @@ const UserInfoModal = ({ onClose }) => {
     dob: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleClose = () => {
+    onClose();
+    setFormData({
+      name: "",
+      email: "",
+      number: "",
+      address: "",
+      dob: "",
+    });
+  };
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -42,7 +56,14 @@ const UserInfoModal = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white w-full max-w-3xl mx-4 rounded-lg shadow-xl p-8">
+      <div className="bg-white w-full max-w-3xl mx-4 rounded-lg shadow-xl p-8 relative">
+        {currentPath !== "/cart" && (
+          <X
+            className="absolute top-4 right-4 cursor-pointer"
+            onClick={handleClose}
+          />
+        )}
+
         <div className="text-center mb-8">
           <h2 className="text-2xl font-medium text-gray-900 mb-2">
             Tell us about yourself

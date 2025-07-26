@@ -19,7 +19,7 @@ const Wishlist = () => {
       try {
         const res = await fetch(`${API_ORIGIN}/api/wishlists/${user.uid}`);
         const data = await res.json();
-        setWishlist(data.products || []);
+        setWishlist(data?.products || []);
       } catch (err) {
         console.error("Error loading wishlist:", err);
       }
@@ -40,7 +40,7 @@ const Wishlist = () => {
       if (!res.ok) return toast.error(result.message);
 
       setWishlist((prev) =>
-        prev.filter((item) => item.product._id !== productId)
+        prev.filter((item) => item?.product?._id !== productId)
       );
       toast.success("Removed from wishlist");
     } catch (err) {
@@ -81,30 +81,30 @@ const Wishlist = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
             {wishlist.map(({ product }) => (
               <div
-                key={product._id}
+                key={product?._id}
                 className="group rounded-2xl border border-gray-100 shadow-md bg-white overflow-hidden hover:shadow-xl transition duration-300"
               >
-                <Link to={`/products/${product._id}`} state={product}>
+                <Link to={`/products/${product?._id}`} state={product}>
                   <img
-                    src={product.image[0]}
-                    alt={product.name}
+                    src={product?.image[0]}
+                    alt={product?.name}
                     className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="p-5 space-y-2">
                     <h3 className="text-lg font-semibold text-gray-800 group-hover:text-black transition">
-                      {product.name}
+                      {product?.name}
                     </h3>
                     <p className="text-sm text-gray-500 line-clamp-2">
-                      {product.description}
+                      {product?.description}
                     </p>
                     <p className="text-md font-bold text-gray-900">
-                      ₹{product.price}
+                      ₹{product?.price}
                     </p>
                   </div>
                 </Link>
                 <div className="p-4 border-t flex justify-end">
                   <button
-                    onClick={() => removeFromWishlist(product._id)}
+                    onClick={() => removeFromWishlist(product?._id)}
                     className="flex items-center gap-2 text-sm text-red-600 hover:text-red-800 transition"
                   >
                     <Trash2 className="w-4 h-4" />

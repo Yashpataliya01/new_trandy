@@ -54,7 +54,7 @@ const Footer = () => {
                   to="/"
                   className="text-gray-600 hover:text-blue-600 transition duration-200 flex items-center gap-1"
                 >
-                  🏠 Home
+                  Home
                 </Link>
               </li>
               <li>
@@ -70,7 +70,7 @@ const Footer = () => {
                   to="/products"
                   className="text-gray-600 hover:text-blue-600 transition duration-200 flex items-center gap-1"
                 >
-                  🛍️ Products
+                  Products
                 </Link>
               </li>
               <li>
@@ -87,14 +87,6 @@ const Footer = () => {
                   className="text-gray-600 hover:text-blue-600 transition duration-200"
                 >
                   About Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/track-order"
-                  className="text-gray-600 hover:text-blue-600 transition duration-200"
-                >
-                  Track Order
                 </Link>
               </li>
               <li>

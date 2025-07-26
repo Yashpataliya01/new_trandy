@@ -170,8 +170,15 @@ export const deleteProduct = async (req, res) => {
       { $pull: { products: { product: req.params.id } } }
     );
 
+    // Remove the product from all wishlists
+    await Wishlist.updateMany(
+      { "products.product": req.params.id },
+      { $pull: { products: { product: req.params.id } } }
+    );
+
     res.status(200).json({
-      message: "Product deleted successfully and removed from all carts",
+      message:
+        "Product deleted successfully and removed from all carts and wishlists",
     });
   } catch (error) {
     console.error(error);

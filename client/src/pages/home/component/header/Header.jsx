@@ -159,23 +159,24 @@ const Header = () => {
                 }}
                 className="max-w-4xl"
               >
-                <h1 className="hero-text-modern text-4xl md:text-6xl font-thin tracking-[0.2em] leading-tight">
+                <h1 className="hero-text-modern text-[3.5rem] md:text-[5rem] font-black tracking-[0.25em] leading-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 drop-shadow-lg">
                   {products[index].title.split(" ").map((word, wordIndex) => (
-                    <span key={wordIndex} className="word">
+                    <span key={wordIndex} className="word inline-block mr-2">
                       {word.split("").map((char, charIndex) => (
                         <motion.span
                           key={`${wordIndex}-${charIndex}`}
-                          className="char"
+                          className="char inline-block"
                           initial={{ opacity: 0, rotateY: 90 }}
                           animate={{ opacity: 1, rotateY: 0 }}
                           transition={{
                             delay: wordIndex * 0.2 + charIndex * 0.03,
+                            ease: "easeOut",
+                            duration: 0.5,
                           }}
                         >
                           {char}
                         </motion.span>
                       ))}
-                      &nbsp;
                     </span>
                   ))}
                 </h1>

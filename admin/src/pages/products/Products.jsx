@@ -32,7 +32,13 @@ const ProductPanel = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const tagOptions = ["Best Seller", "Trending", "New", "Sale"];
+  const tagOptions = [
+    "Best Seller",
+    "Trending",
+    "New",
+    "Sale",
+    "Most Trending",
+  ];
   const API = `${API_ORIGIN}/api`;
 
   const fetchProducts = async () => {
