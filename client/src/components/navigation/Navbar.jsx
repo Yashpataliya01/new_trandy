@@ -159,41 +159,8 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Right Icons and Search */}
+          {/* Right Icons */}
           <div className="flex items-center space-x-6 relative">
-            {/* Search Bar */}
-            <div className="relative group" ref={searchDropdownRef}>
-              <form onSubmit={handleSearchSubmit} className="flex items-center">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products..."
-                  className="w-32 md:w-48 px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded-full outline-none bg-white"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                >
-                  <Search className="w-5 h-5 text-gray-600" />
-                </button>
-              </form>
-              {/* Search Suggestions Dropdown */}
-              {searchResults.length > 0 && (
-                <div className="absolute top-10 left-0 w-full bg-white border border-gray-100 rounded-md shadow-lg py-2 z-50 max-h-60 overflow-y-auto">
-                  {searchResults.map((product) => (
-                    <button
-                      key={product._id}
-                      onClick={() => handleSuggestionClick(product)} // ✅ use this
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      {product.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
             <Link to="/wishlist" className="group relative">
               <div className="w-8 h-8 flex items-center justify-center rounded-full shadow-md transform group-hover:translate-y-[1px] group-hover:shadow-lg transition">
                 <Heart className="w-5 h-5 text-gray-600 fill-red-500" />
@@ -270,7 +237,7 @@ const Navbar = () => {
                   {searchResults.map((product) => (
                     <button
                       key={product._id}
-                      onClick={() => handleSuggestionClick(product._id)}
+                      onClick={() => handleSuggestionClick(product)}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       {product.name}

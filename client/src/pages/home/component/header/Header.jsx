@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 
 // Placeholder for API base URL (replace with your actual API URL)
-const API = "https://new-trandy.onrender.com/api";
+const API = "https://new-trandy-4zcc.onrender.com/api";
 
 // Dummy data to simulate API response
 const dummyProducts = [
@@ -63,7 +63,7 @@ const Header = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[90vh]">
+      <div className="flex justify-center items-center h-[60vh] sm:h-[70vh] md:h-[80vh]">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
           <p className="text-gray-500">Loading products...</p>
@@ -74,7 +74,7 @@ const Header = () => {
 
   if (products.length === 0) {
     return (
-      <div className="flex justify-center items-center h-[90vh]">
+      <div className="flex justify-center items-center h-[60vh] sm:h-[70vh] md:h-[80vh]">
         <p className="text-gray-500">No products available</p>
       </div>
     );
@@ -127,9 +127,64 @@ const Header = () => {
           transform: translateY(-10px) rotate(5deg) scale(1.1);
           text-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
         }
+
+        .hero-container {
+          width: 100%;
+          position: relative;
+          overflow: hidden;
+          aspect-ratio: 16 / 9; /* Maintain rectangular aspect ratio */
+        }
+
+        .hero-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover; /* Maintain aspect ratio and cover container */
+          object-position: center; /* Center the image */
+          display: block;
+        }
+
+        @media (max-width: 640px) {
+          .hero-container {
+            height: 50vh; /* Reduced height for mobile */
+            max-height: 350px; /* Cap height to avoid oversized images */
+            aspect-ratio: 4 / 3; /* Adjust for better visibility on mobile */
+          }
+
+          .hero-text-modern {
+            font-size: 1.5rem; /* Smaller font size for mobile */
+            letter-spacing: 0.1em; /* Tighter tracking for readability */
+            padding: 0 1rem; /* Add padding to prevent text cutoff */
+          }
+        }
+
+        @media (min-width: 641px) and (max-width: 1024px) {
+          .hero-container {
+            height: 60vh; /* Adjusted height for tablets */
+            max-height: 450px;
+            aspect-ratio: 16 / 9;
+          }
+
+          .hero-text-modern {
+            font-size: 2.5rem; /* Medium font size for tablets */
+            letter-spacing: 0.15em;
+          }
+        }
+
+        @media (min-width: 1025px) {
+          .hero-container {
+            height: 80vh; /* Full height for larger screens */
+            max-height: 600px;
+            aspect-ratio: 16 / 9;
+          }
+
+          .hero-text-modern {
+            font-size: 4rem; /* Larger font size for desktop */
+            letter-spacing: 0.2em;
+          }
+        }
       `}</style>
 
-      <div className="relative w-full h-[90vh] overflow-hidden">
+      <div className="hero-container">
         <AnimatePresence>
           <motion.div
             key={index}
@@ -142,7 +197,7 @@ const Header = () => {
             <img
               src={products[index].image}
               alt={products[index].title}
-              className="w-full h-full object-cover"
+              className="hero-image"
             />
             <div className="absolute inset-0 bg-black/40" />
             <div className="absolute inset-0 flex items-center justify-center text-center px-4">
@@ -157,9 +212,9 @@ const Header = () => {
                   stiffness: 100,
                   damping: 10,
                 }}
-                className="max-w-4xl"
+                className="max-w-3xl w-full"
               >
-                <h1 className="hero-text-modern text-[3.5rem] md:text-[5rem] font-black tracking-[0.25em] leading-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 drop-shadow-lg">
+                <h1 className="hero-text-modern text-[1.5rem] sm:text-[2.5rem] md:text-[4rem] font-black tracking-[0.1em] sm:tracking-[0.15em] md:tracking-[0.2em] leading-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 drop-shadow-lg">
                   {products[index].title.split(" ").map((word, wordIndex) => (
                     <span key={wordIndex} className="word inline-block mr-2">
                       {word.split("").map((char, charIndex) => (
