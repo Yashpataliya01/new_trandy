@@ -128,7 +128,7 @@ const Navbar = () => {
             <p className="text-sm text-gray-500">Viral Products</p>
           </div>
 
-          {/* Desktop Nav */}
+          {/* Desktop Nav and Search */}
           <div className="hidden md:flex items-center space-x-12">
             {navItems.map((item, index) => (
               <div key={index} className="relative group">
@@ -157,6 +157,34 @@ const Navbar = () => {
                 </button>
               </div>
             ))}
+            {/* Desktop Search Bar */}
+            <div className="relative" ref={searchDropdownRef}>
+              <form onSubmit={handleSearchSubmit} className="flex items-center">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-64 px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-black transition"
+                />
+                <button type="submit" className="ml-2">
+                  <Search className="w-5 h-5 text-gray-600" />
+                </button>
+              </form>
+              {searchResults.length > 0 && (
+                <div className="absolute mt-2 w-64 bg-white border border-gray-100 rounded-md shadow-lg py-2 z-50 max-h-60 overflow-y-auto">
+                  {searchResults.map((product) => (
+                    <button
+                      key={product._id}
+                      onClick={() => handleSuggestionClick(product)}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      {product.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Right Icons */}
@@ -215,11 +243,8 @@ const Navbar = () => {
         {/* Mobile Nav */}
         {isMenuOpen && (
           <div className="md:hidden flex flex-col space-y-4 mt-4 pb-4 border-t border-gray-100">
-            <div className="relative" ref={searchDropdownRef}>
-              <form
-                onSubmit={handleSearchSubmit}
-                className="flex items-center px-2"
-              >
+            <div className="relative w-full px-4" ref={searchDropdownRef}>
+              <form onSubmit={handleSearchSubmit} className="flex items-center">
                 <input
                   type="text"
                   value={searchQuery}
@@ -231,7 +256,6 @@ const Navbar = () => {
                   <Search className="w-5 h-5 text-gray-600" />
                 </button>
               </form>
-              {/* Mobile Search Suggestions Dropdown */}
               {searchResults.length > 0 && (
                 <div className="mt-2 w-full bg-white border border-gray-100 rounded-md shadow-lg py-2 z-50 max-h-60 overflow-y-auto">
                   {searchResults.map((product) => (

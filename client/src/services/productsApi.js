@@ -2,6 +2,19 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const BASE_URL = import.meta.env.VITE_ENCODED_URL;
 
+export const homeApi = createApi({
+  reducerPath: "homeApi",
+  baseQuery: fetchBaseQuery({ baseUrl: `${BASE_URL}/api/` }), // Base URL for /home/
+  endpoints: (builder) => ({
+    getHomeProducts: builder.query({
+      query: () => "home/",
+      transformResponse: (response) => response, // Assuming response is the array of products
+      transformErrorResponse: (response) =>
+        response?.data?.message || "Failed to fetch products",
+    }),
+  }),
+});
+
 export const productsApi = createApi({
   reducerPath: "productsApi",
   baseQuery: fetchBaseQuery({ baseUrl: `${BASE_URL}/api/products/` }),
@@ -25,10 +38,16 @@ export const productsApi = createApi({
 
 export const categoriesApi = createApi({
   reducerPath: "categoriesApi",
-  baseQuery: fetchBaseQuery({ baseUrl: `${BASE_URL}/api/categories/` }),
+  baseQuery: fetchBaseQuery({ baseUrl: `${BASE_URL}/api/` }),
   endpoints: (builder) => ({
     getCategories: builder.query({
-      query: () => "/",
+      query: () => "categories/",
+    }),
+    getShopCategories: builder.query({
+      query: () => "shopCategories/categories",
+      transformResponse: (response) => response,
+      transformErrorResponse: (response) =>
+        response?.data?.message || "Failed to fetch categories",
     }),
   }),
 });
@@ -147,8 +166,10 @@ export const discountsApi = createApi({
 });
 
 // Export hooks
+export const { useGetHomeProductsQuery } = homeApi;
 export const { useGetProductsQuery } = productsApi;
-export const { useGetCategoriesQuery } = categoriesApi;
+export const { useGetCategoriesQuery, useGetShopCategoriesQuery } =
+  categoriesApi;
 export const {
   useGetWishlistQuery,
   useAddToWishlistMutation,

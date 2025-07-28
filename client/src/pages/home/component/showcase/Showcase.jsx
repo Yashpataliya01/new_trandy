@@ -1,40 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useGetShopCategoriesQuery } from "../../../../services/productsApi";
 
 const CategoryShowcase = () => {
-  const API_ORIGIN = import.meta.env.VITE_ENCODED_URL;
-  const API = `${API_ORIGIN}/api`;
-  const [shopCategories, setShopCategories] = useState([]);
+  const {
+    data: shopCategories = [],
+    isLoading,
+    error,
+  } = useGetShopCategoriesQuery();
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  // Fetch shop categories
-  const fetchShopCategories = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`${API}/shopCategories/categories`);
-      const data = await res.json();
-      if (!res.ok)
-        throw new Error(data?.message || "Failed to fetch categories");
-      setShopCategories(data);
-      // Set the first category as the default selected category
-      if (data.length > 0) setSelectedCategory(data[0]);
-    } catch (err) {
-      setError("Failed to load categories. Please try again later.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  console.log(shopCategories, "hhahaha");
 
+  // Set the first category as the default selected category when data is loaded
   useEffect(() => {
-    fetchShopCategories();
-  }, []);
+    if (shopCategories.length > 0) {
+      setSelectedCategory(shopCategories[0]);
+    }
+  }, [shopCategories]);
 
   // If loading, show a placeholder
-  if (loading) {
+  if (isLoading) {
     return (
       <section className="px-6 py-12">
         <div className="max-w-7xl mx-auto flex justify-center items-center h-[600px]">
@@ -62,7 +49,8 @@ const CategoryShowcase = () => {
             transition={{ duration: 0.6 }}
             className="text-red-500 text-xl"
           >
-            {error}
+            {error?.data?.message ||
+              "Failed to load categories. Please try again later."}
           </motion.div>
         </div>
       </section>
@@ -91,6 +79,12 @@ const CategoryShowcase = () => {
     <>
       <style>{`
         @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap");
+        .small-visual-container {
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          padding: 10px;
+          background-color: #f9fafb;
+        }
       `}</style>
 
       <section className="px-6 py-12">
@@ -143,20 +137,22 @@ const CategoryShowcase = () => {
 
             {/* Right Column: Small Image + Text */}
             <div className="flex flex-col gap-6">
-              {/* Small Image */}
-              <motion.img
-                key={selectedCategory?.image?.[1] || ""}
-                src={selectedCategory?.image?.[1] || ""}
-                alt="Small visual"
-                className="w-full h-[200px] object-cover rounded-lg shadow"
-                initial={{ opacity: 0, y: -30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                onError={(e) => {
-                  e.target.src =
-                    "https://via.placeholder.com/300x200?text=Image+Not+Available";
-                }}
-              />
+              {/* Small Image (adjusted to match layout) */}
+              <div className="small-visual-container">
+                <motion.img
+                  key={selectedCategory?.image?.[1] || ""}
+                  src={selectedCategory?.image?.[1] || ""}
+                  alt="Small visual"
+                  className="w-full h-[150px] object-cover rounded-lg shadow"
+                  initial={{ opacity: 0, y: -30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  onError={(e) => {
+                    e.target.src =
+                      "https://via.placeholder.com/300x150?text=Image+Not+Available";
+                  }}
+                />
+              </div>
 
               {/* Text Block */}
               <motion.div
@@ -177,7 +173,12 @@ const CategoryShowcase = () => {
                 </p>
                 <Link
                   to={`/products`}
-                  state={{ category: selectedCategory?.category?.name || "" }}
+                  state={{
+                    category:
+                      selectedCategory?.category?.name ||
+                      selectedCategory?.name ||
+                      "",
+                  }}
                   className="bg-black text-white px-6 py-3 text-sm tracking-wide rounded hover:bg-gray-800 transition"
                 >
                   SHOP NOW

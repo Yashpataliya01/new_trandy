@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
-
-// Placeholder for API base URL (replace with your actual API URL)
-const API = "https://new-trandy-4zcc.onrender.com/api";
+import { useGetHomeProductsQuery } from "../../../../services/productsApi"; // Adjust the import path based on your project structure
 
 // Dummy data to simulate API response
 const dummyProducts = [
@@ -30,27 +28,16 @@ const dummyProducts = [
 const Header = () => {
   const [products, setProducts] = useState([]);
   const [index, setIndex] = useState(0);
-  const [loading, setLoading] = useState(false);
-
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const url = `${API}/home/`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.message || "Failed to fetch products");
-      setProducts(data);
-    } catch (error) {
-      alert("Failed to load products");
-      setProducts(dummyProducts); // Fallback to dummy data on error
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data, error, isLoading } = useGetHomeProductsQuery();
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (data) {
+      setProducts(data);
+    } else if (error) {
+      console.error("Failed to load products:", error);
+      setProducts(dummyProducts); // Fallback to dummy data on error
+    }
+  }, [data, error]);
 
   useEffect(() => {
     if (products.length === 0) return;
@@ -61,7 +48,7 @@ const Header = () => {
     return () => clearInterval(interval);
   }, [products]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[60vh] sm:h-[70vh] md:h-[80vh]">
         <div className="flex flex-col items-center gap-4">
@@ -183,7 +170,6 @@ const Header = () => {
           }
         }
       `}</style>
-
       <div className="hero-container">
         <AnimatePresence>
           <motion.div

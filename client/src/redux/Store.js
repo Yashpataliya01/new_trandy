@@ -7,6 +7,7 @@ import {
   brandsApi,
   mobilesApi,
   discountsApi,
+  homeApi,
 } from "../services/productsApi.js";
 
 export const store = configureStore({
@@ -18,6 +19,7 @@ export const store = configureStore({
     [brandsApi.reducerPath]: brandsApi.reducer,
     [mobilesApi.reducerPath]: mobilesApi.reducer,
     [discountsApi.reducerPath]: discountsApi.reducer,
+    [homeApi.reducerPath]: homeApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -27,5 +29,6 @@ export const store = configureStore({
       .concat(cartApi.middleware)
       .concat(brandsApi.middleware)
       .concat(mobilesApi.middleware)
-      .concat(discountsApi.middleware),
+      .concat(discountsApi.middleware)
+      .concat(homeApi.middleware),
 });
