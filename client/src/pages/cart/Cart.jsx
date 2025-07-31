@@ -395,7 +395,10 @@ const Cart = () => {
                       totalSavings={totalSavings}
                       onError={handleError}
                     />
-                    <button className="w-full border-2 border-gray-200 text-gray-700 py-4 px-6 rounded-xl font-medium tracking-wide hover:border-gray-300 hover:bg-gray-50 transition-all duration-200">
+                    <button
+                      className="w-full border-2 border-gray-200 text-gray-700 py-4 px-6 rounded-xl font-medium tracking-wide hover:border-gray-300 hover:bg-gray-50 transition-all duration-200"
+                      onClick={() => navigate("/products")}
+                    >
                       Continue Shopping
                     </button>
                   </div>

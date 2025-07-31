@@ -55,6 +55,10 @@ app.use((err, req, res, next) => {
   });
 });
 
+app.use("/", (req, res) => {
+  res.status(200).json({ message: "Welcome to the API" });
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

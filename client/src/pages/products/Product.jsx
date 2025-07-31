@@ -153,7 +153,7 @@ const ProductPage = () => {
                     <div className="flex items-center gap-2">
                       {product.discountedPrice ? (
                         <>
-                          <span className="text-sm font-bold text-red-600">
+                          <span className="text-sm font-bold text-black">
                             ${product.discountedPrice}
                           </span>
                           <span className="text-xs text-gray-400 line-through">
