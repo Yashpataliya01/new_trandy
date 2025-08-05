@@ -74,7 +74,7 @@ const ProductShowcase = ({ title, id }) => {
         @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap");
       `}</style> */}
 
-      <div className="py-16">
+      <div className="pb-16">
         <div className="mx-auto flex justify-center flex-col items-center">
           {/* Section Heading */}
           <motion.div

@@ -220,13 +220,13 @@ const generatePDFContent = (
 const uploadToCloudinary = async (pdfBlob) => {
   const formData = new FormData();
   formData.append("file", pdfBlob, "cart_summary.pdf");
-  formData.append("upload_preset", "pnmzh8qk");
-  formData.append("cloud_name", "dysvhtqxi");
+  formData.append("upload_preset", "ml_default");
+  formData.append("cloud_name", "dybmzzkcy");
   formData.append("resource_type", "raw");
 
   try {
     const res = await fetch(
-      "https://api.cloudinary.com/v1_1/dysvhtqxi/raw/upload",
+      "https://api.cloudinary.com/v1_1/dybmzzkcy/raw/upload",
       {
         method: "POST",
         body: formData,

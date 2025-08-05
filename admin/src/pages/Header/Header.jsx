@@ -36,12 +36,12 @@ const Header = () => {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "pnmzh8qk");
-    formData.append("cloud_name", "dysvhtqxi");
+    formData.append("upload_preset", "ml_default");
+    formData.append("cloud_name", "dybmzzkcy");
 
     try {
       const res = await fetch(
-        `https://api.cloudinary.com/v1_1/dysvhtqxi/image/upload`,
+        `https://api.cloudinary.com/v1_1/dybmzzkcy/image/upload`,
         {
           method: "POST",
           body: formData,

@@ -154,15 +154,15 @@ const ProductPage = () => {
                       {product.discountedPrice ? (
                         <>
                           <span className="text-sm font-bold text-black">
-                            ${product.discountedPrice}
+                            ₹{product.discountedPrice}
                           </span>
                           <span className="text-xs text-gray-400 line-through">
-                            ${product.price}
+                            ₹{product.price}
                           </span>
                         </>
                       ) : (
                         <span className="text-sm font-semibold text-gray-900">
-                          ${product.price}
+                          ₹{product.price}
                         </span>
                       )}
                     </div>
