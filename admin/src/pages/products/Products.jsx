@@ -27,7 +27,7 @@ const ProductPanel = () => {
     discountedPrice: "",
     category: cat?._id,
     image: [],
-    tags: "", // Changed from array to string
+    tag: "", // Changed from array to string
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -143,7 +143,7 @@ const ProductPanel = () => {
       discountedPrice: product?.discountedPrice || "",
       image: [],
       category: cat?._id,
-      tags: product?.tags || "", // Changed from array to string
+      tag: product?.tag || "", // Changed from array to string
     });
     setIsModalOpen(true);
   };
@@ -171,7 +171,7 @@ const ProductPanel = () => {
   const selectTag = (tag) => {
     setFormData((prev) => ({
       ...prev,
-      tags: prev.tags === tag ? "" : tag, // Toggle selection or deselect if same tag
+      tag: prev.tag === tag ? "" : tag, // Toggle selection or deselect if same tag
     }));
   };
 
@@ -254,10 +254,10 @@ const ProductPanel = () => {
                   </p>
 
                   {/* Display single tag if exists */}
-                  {product.tags && (
+                  {product.tag && (
                     <div className="mb-3">
                       <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                        {product.tags}
+                        {product.tag}
                       </span>
                     </div>
                   )}
@@ -411,7 +411,7 @@ const ProductPanel = () => {
                         type="button"
                         onClick={() => selectTag(tag)}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                          formData.tags === tag
+                          formData.tag === tag
                             ? "bg-blue-600 text-white shadow-lg"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                         }`}
@@ -420,10 +420,10 @@ const ProductPanel = () => {
                       </button>
                     ))}
                   </div>
-                  {formData.tags && (
+                  {formData.tag && (
                     <p className="text-sm text-gray-500 mt-2">
                       Selected:{" "}
-                      <span className="font-medium">{formData.tags}</span>
+                      <span className="font-medium">{formData.tag}</span>
                     </p>
                   )}
                 </div>

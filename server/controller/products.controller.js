@@ -123,11 +123,12 @@ export const createProduct = async (req, res) => {
 };
 
 export const updateProduct = async (req, res) => {
-  const { name, description, price, image, discountedPrice, category, tags } =
+  const { name, description, price, image, discountedPrice, category, tag } =
     req.body;
 
   try {
     const product = await Product.findById(req.params.id);
+    console.log(product, "consoling the product");
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -143,14 +144,14 @@ export const updateProduct = async (req, res) => {
 
     product.discountedPrice = discountedPrice ?? product.discountedPrice;
     product.category = category ?? product.category;
-    product.tag = tags ?? product.tag;
+    product.tag = tag ?? product.tag;
 
     await product.save();
 
     res.status(200).json(product);
   } catch (error) {
     console.error("Update product error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: error.message });
   }
 };
 
