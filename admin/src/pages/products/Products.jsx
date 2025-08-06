@@ -26,8 +26,8 @@ const ProductPanel = () => {
     price: "",
     discountedPrice: "",
     category: cat?._id,
-    image: [],
-    tag: "", // Changed from array to string
+    media: [], // Changed from image to media
+    tag: "",
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,41 +58,50 @@ const ProductPanel = () => {
     }
   };
 
-  const uploadImagesToCloudinary = async (files) => {
-    const urls = [];
+  const uploadMediaToCloudinary = async (files) => {
+    const mediaItems = [];
 
     for (const file of files) {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", "ml_default");
       formData.append("cloud_name", "dybmzzkcy");
+      formData.append(
+        "resource_type",
+        file.type.startsWith("video") ? "video" : "image"
+      );
 
       try {
         const res = await fetch(
-          `https://api.cloudinary.com/v1_1/dybmzzkcy/image/upload`,
+          `https://api.cloudinary.com/v1_1/dybmzzkcy/upload`,
           {
             method: "POST",
             body: formData,
           }
         );
         const data = await res.json();
-        if (data.secure_url) urls.push(data.secure_url);
+        if (data.secure_url) {
+          mediaItems.push({
+            url: data.secure_url,
+            type: file.type.startsWith("video") ? "video" : "image",
+          });
+        }
       } catch (err) {
-        console.error("Image upload failed:", err);
+        console.error("Media upload failed:", err);
       }
     }
 
-    return urls;
+    return mediaItems;
   };
 
   const handleSaveProduct = async () => {
     setIsSubmitting(true);
 
     try {
-      const imageUrls = await uploadImagesToCloudinary(formData.image);
+      const mediaItems = await uploadMediaToCloudinary(formData.media);
       const payload = {
         ...formData,
-        image: imageUrls,
+        media: mediaItems,
       };
 
       const method = editProduct ? "PUT" : "POST";
@@ -141,37 +150,33 @@ const ProductPanel = () => {
       description: product?.description || "",
       price: product?.price || "",
       discountedPrice: product?.discountedPrice || "",
-      image: [],
+      media: product?.media || [],
       category: cat?._id,
-      tag: product?.tag || "", // Changed from array to string
+      tag: product?.tag || "",
     });
     setIsModalOpen(true);
   };
 
-  // Handle file input change - add new files to existing ones
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files);
     setFormData((prev) => ({
       ...prev,
-      image: [...prev.image, ...newFiles],
+      media: [...prev.media, ...newFiles],
     }));
-    // Reset the file input
     e.target.value = "";
   };
 
-  // Remove individual image
-  const removeImage = (index) => {
+  const removeMedia = (index) => {
     setFormData((prev) => ({
       ...prev,
-      image: prev.image.filter((_, i) => i !== index),
+      media: prev.media.filter((_, i) => i !== index),
     }));
   };
 
-  // Handle single tag selection
   const selectTag = (tag) => {
     setFormData((prev) => ({
       ...prev,
-      tag: prev.tag === tag ? "" : tag, // Toggle selection or deselect if same tag
+      tag: prev.tag === tag ? "" : tag,
     }));
   };
 
@@ -230,17 +235,42 @@ const ProductPanel = () => {
                 className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden group"
               >
                 <div className="relative w-full h-64 overflow-hidden">
-                  <img
-                    src={product.image?.[0]}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  {product.image?.length >= 2 && (
-                    <img
-                      src={product.image?.[1]}
-                      alt={`${product.name} alt`}
-                      className="w-full h-full object-cover absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                    />
+                  {product.media?.[0]?.type === "video" ? (
+                    <>
+                      <video
+                        src={product.media[0].url}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        controls
+                      />
+                      {product.media?.[1]?.type === "video" ? (
+                        <video
+                          src={product.media[1].url}
+                          className="w-full h-full object-cover absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                          controls
+                        />
+                      ) : (
+                        <img
+                          src={product.media?.[1]?.url || product.media[0].url}
+                          alt={`${product.name} alt`}
+                          className="w-full h-full object-cover absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <img
+                        src={product.media?.[0]?.url}
+                        alt={product.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      {product.media?.length >= 2 && (
+                        <img
+                          src={product.media?.[1]?.url}
+                          alt={`${product.name} alt`}
+                          className="w-full h-full object-cover absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                        />
+                      )}
+                    </>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
@@ -253,7 +283,6 @@ const ProductPanel = () => {
                     {product.description}
                   </p>
 
-                  {/* Display single tag if exists */}
                   {product.tag && (
                     <div className="mb-3">
                       <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
@@ -305,210 +334,226 @@ const ProductPanel = () => {
             </p>
           </div>
         )}
-      </div>
 
-      {/* Modern Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl max-h-[90vh]">
-            {/* Header */}
-            <div className="flex justify-between items-center p-6 border-b border-gray-100">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {editProduct ? "Edit Product" : "Add New Product"}
-                </h2>
-                <p className="text-sm text-gray-500 mt-1">
-                  Fill in the details below
-                </p>
-              </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                disabled={isSubmitting}
-                className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-all duration-200"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            {/* Form Content */}
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-              <div className="space-y-6">
-                {/* Product Name */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl max-h-[90vh]">
+              <div className="flex justify-between items-center p-6 border-b border-gray-100">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Product Name *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Enter product name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  />
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {editProduct ? "Edit Product" : "Add New Product"}
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Fill in the details below
+                  </p>
                 </div>
-
-                {/* Description */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    placeholder="Describe your product..."
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  />
-                </div>
-
-                {/* Price Fields */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Price *
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="0.00"
-                      value={formData.price}
-                      onChange={(e) =>
-                        setFormData({ ...formData, price: e.target.value })
-                      }
-                      className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Discounted Price
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="0.00"
-                      value={formData.discountedPrice}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          discountedPrice: e.target.value,
-                        })
-                      }
-                      className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    />
-                  </div>
-                </div>
-
-                {/* Single Tag Selection */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Tag (Select One)
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {tagOptions.map((tag) => (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => selectTag(tag)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                          formData.tag === tag
-                            ? "bg-blue-600 text-white shadow-lg"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
-                      >
-                        {tag}
-                      </button>
-                    ))}
-                  </div>
-                  {formData.tag && (
-                    <p className="text-sm text-gray-500 mt-2">
-                      Selected:{" "}
-                      <span className="font-medium">{formData.tag}</span>
-                    </p>
-                  )}
-                </div>
-
-                {/* Image Upload */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Product Images
-                  </label>
-
-                  {/* Upload Button */}
-                  <div className="mb-4">
-                    <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group">
-                      <div className="text-center">
-                        <ImagePlus className="w-8 h-8 text-gray-400 group-hover:text-blue-500 mx-auto mb-2" />
-                        <p className="text-sm text-gray-500 group-hover:text-blue-500">
-                          Click to add images
-                        </p>
-                      </div>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileChange}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-
-                  {/* Image Preview Grid */}
-                  {formData.image.length > 0 && (
-                    <div className="flex flex-wrap gap-4 mt-4">
-                      {formData.image.map((img, index) => (
-                        <div key={index} className="relative w-24 h-24">
-                          <img
-                            src={URL.createObjectURL(img)}
-                            alt={`preview-${index}`}
-                            className="w-full h-full object-cover rounded-lg border"
-                          />
-                          <button
-                            onClick={() => removeImage(index)}
-                            className="absolute top-1 right-1 bg-white rounded-full p-1 shadow hover:bg-red-100"
-                          >
-                            <X className="w-4 h-4 text-red-500" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="p-6 border-t border-gray-100 bg-gray-50">
-              <div className="flex gap-3 justify-end">
                 <button
                   onClick={() => setIsModalOpen(false)}
                   disabled={isSubmitting}
-                  className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 disabled:opacity-50"
+                  className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-all duration-200"
                 >
-                  Cancel
+                  <X className="w-6 h-6" />
                 </button>
-                <button
-                  onClick={handleSaveProduct}
-                  disabled={isSubmitting}
-                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center gap-2 disabled:opacity-50 shadow-lg"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-5 h-5" />
-                      {editProduct ? "Update Product" : "Save Product"}
-                    </>
-                  )}
-                </button>
+              </div>
+
+              <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Product Name *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter product name"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Description
+                    </label>
+                    <textarea
+                      placeholder="Describe your product..."
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
+                      }
+                      className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Price *
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="0.00"
+                        value={formData.price}
+                        onChange={(e) =>
+                          setFormData({ ...formData, price: e.target.value })
+                        }
+                        className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Discounted Price
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="0.00"
+                        value={formData.discountedPrice}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            discountedPrice: e.target.value,
+                          })
+                        }
+                        className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Tag (Select One)
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {tagOptions.map((tag) => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => selectTag(tag)}
+                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                            formData.tag === tag
+                              ? "bg-blue-600 text-white shadow-lg"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          }`}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                    {formData.tag && (
+                      <p className="text-sm text-gray-500 mt-2">
+                        Selected:{" "}
+                        <span className="font-medium">{formData.tag}</span>
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Product Media
+                    </label>
+
+                    <div className="mb-4">
+                      <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group">
+                        <div className="text-center">
+                          <ImagePlus className="w-8 h-8 text-gray-400 group-hover:text-blue-500 mx-auto mb-2" />
+                          <p className="text-sm text-gray-500 group-hover:text-blue-500">
+                            Click to add images or videos
+                          </p>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*,video/mp4,video/webm"
+                          multiple
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+
+                    {formData.media.length > 0 && (
+                      <div className="flex flex-wrap gap-4 mt-4">
+                        {formData.media.map((media, index) => (
+                          <div key={index} className="relative w-24 h-24">
+                            {typeof media === "string" || media.url ? (
+                              media.type === "video" ||
+                              media.url?.endsWith(".mp4") ||
+                              media.url?.endsWith(".webm") ? (
+                                <video
+                                  src={media.url || URL.createObjectURL(media)}
+                                  className="w-full h-full object-cover rounded-lg border"
+                                  controls
+                                />
+                              ) : (
+                                <img
+                                  src={media.url || URL.createObjectURL(media)}
+                                  alt={`preview-${index}`}
+                                  className="w-full h-full object-cover rounded-lg border"
+                                />
+                              )
+                            ) : media.type === "video" ? (
+                              <video
+                                src={URL.createObjectURL(media)}
+                                className="w-full h-full object-cover rounded-lg border"
+                                controls
+                              />
+                            ) : (
+                              <img
+                                src={URL.createObjectURL(media)}
+                                alt={`preview-${index}`}
+                                className="w-full h-full object-cover rounded-lg border"
+                              />
+                            )}
+                            <button
+                              onClick={() => removeMedia(index)}
+                              className="absolute top-1 right-1 bg-white rounded-full p-1 shadow hover:bg-red-100"
+                            >
+                              <X className="w-4 h-4 text-red-500" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-gray-100 bg-gray-50">
+                <div className="flex gap-3 justify-end">
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    disabled={isSubmitting}
+                    className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveProduct}
+                    disabled={isSubmitting}
+                    className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center gap-2 disabled:opacity-50 shadow-lg"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-5 h-5" />
+                        {editProduct ? "Update Product" : "Save Product"}
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
