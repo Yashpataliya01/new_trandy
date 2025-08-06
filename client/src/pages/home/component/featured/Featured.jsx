@@ -6,7 +6,7 @@ const TrendingSpotlight = () => {
   const navigate = useNavigate();
   const [productImage, setProductImage] = useState(null);
   const [product, setProduct] = useState(null);
-  const API = "http://localhost:5000/api";
+  const API = "https://new-trandy-27ep.onrender.com/api";
 
   const fetchProducts = async () => {
     try {

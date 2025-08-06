@@ -27,6 +27,7 @@ const ProductPage = () => {
   const [page, setPage] = useState(1);
   const limit = 9;
 
+  // Check if user has visited before using localStorage
   useEffect(() => {
     const hasVisited = localStorage.getItem("hasVisitedProductPage");
     if (!hasVisited) {
@@ -51,8 +52,9 @@ const ProductPage = () => {
   const categories = ["All", ...(categoriesData?.map((cat) => cat.name) || [])];
 
   return (
-    <div className="min-h-screen px-4 py-6 font-sans">
+    <div className="min-h-screen  px-4 py-6 font-sans">
       <div className="max-w-7xl mx-auto">
+        {/* Top Bar */}
         <div className="flex justify-between items-center mb-6 flex-col sm:flex-row gap-4">
           <motion.input
             type="text"
@@ -78,6 +80,7 @@ const ProductPage = () => {
           </motion.button>
         </div>
 
+        {/* Product Grid */}
         <AnimatePresence>
           {isLoading ? (
             <motion.p
@@ -124,51 +127,25 @@ const ProductPage = () => {
                     })
                   }
                 >
+                  {/* Product Image with hover effect */}
                   <div className="relative aspect-[3/2] overflow-hidden group">
-                    {product.media?.[0]?.type === "video" ? (
-                      <>
-                        <motion.video
-                          src={product.media[0].url}
-                          className="absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 opacity-100 group-hover:opacity-0"
-                          controls
-                        />
-                        {product.media?.[1]?.type === "video" ? (
-                          <motion.video
-                            src={product.media[1].url}
-                            className="absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
-                            controls
-                          />
-                        ) : (
-                          <motion.img
-                            src={
-                              product.media?.[1]?.url || product.media[0].url
-                            }
-                            alt={product.name}
-                            className="absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
-                          />
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <motion.img
-                          src={product.media?.[0]?.url}
-                          alt={product.name}
-                          className="absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 opacity-100 group-hover:opacity-0"
-                        />
-                        <motion.img
-                          src={
-                            product.media?.[1]?.url || product.media?.[0]?.url
-                          }
-                          alt={product.name}
-                          className="absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
-                        />
-                      </>
-                    )}
+                    <motion.img
+                      src={product.image[0]}
+                      alt={product.name}
+                      className="absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 opacity-100 group-hover:opacity-0"
+                    />
+                    <motion.img
+                      src={product.image[1]}
+                      alt={product.name}
+                      className="absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
+                    />
+                    {/* Tag badge */}
                     <span className="absolute top-2 left-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm">
                       {product?.tag}
                     </span>
                   </div>
 
+                  {/* Product Content */}
                   <div className="p-3 space-y-1.5">
                     <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
                       {product?.name}
@@ -204,6 +181,7 @@ const ProductPage = () => {
           )}
         </AnimatePresence>
 
+        {/* Pagination Controls */}
         <div className="flex justify-center items-center mt-8 gap-3">
           <motion.button
             onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
@@ -228,6 +206,7 @@ const ProductPage = () => {
           </motion.button>
         </div>
 
+        {/* Filter Sidebar */}
         <motion.div
           className={`fixed top-0 right-0 h-full w-72 bg-white shadow-2xl transform transition-transform duration-300 z-50 ${
             showFilter ? "translate-x-0" : "translate-x-full"
@@ -250,6 +229,7 @@ const ProductPage = () => {
           </div>
 
           <div className="p-5 space-y-6">
+            {/* Sort */}
             <div>
               <h4 className="font-medium text-gray-800 text-base mb-2">
                 Sort by
@@ -276,6 +256,7 @@ const ProductPage = () => {
               </div>
             </div>
 
+            {/* Tag Filter */}
             <div>
               <h4 className="font-medium text-gray-800 text-base mb-2">Tags</h4>
               <div className="flex flex-wrap gap-2">
@@ -300,6 +281,7 @@ const ProductPage = () => {
               </div>
             </div>
 
+            {/* Category Dropdown */}
             <div className="relative">
               <h4 className="font-medium text-gray-800 text-base mb-2">
                 Category
@@ -340,6 +322,7 @@ const ProductPage = () => {
               </AnimatePresence>
             </div>
 
+            {/* Reset & Apply */}
             <div className="flex justify-between gap-2 pt-4">
               <motion.button
                 className="flex-1 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-200 transition-all"
@@ -368,10 +351,11 @@ const ProductPage = () => {
           </div>
         </motion.div>
 
+        {/* Backdrop */}
         <AnimatePresence>
           {showFilter && (
             <motion.div
-              className="fixed inset-0 bg-gradient-to-b from-gray-300/20 to-gray-300/20 backdrop-blur-lg z-40"
+              className="fixed inset-0 bg-gradient-to-b from-gray Hawkins-gray-300/20 to-gray-300/20 backdrop-blur-lg z-40"
               onClick={() => setShowFilter(false)}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

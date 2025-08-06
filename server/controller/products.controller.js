@@ -14,7 +14,7 @@ export const getAllProducts = async (req, res) => {
     let query = {};
     if (category) query.category = category;
 
-    const products = await Product.find(query).populate("category");
+    const products = await Product.find(query);
     res.status(200).json(products);
   } catch (error) {
     console.error(error);
@@ -22,6 +22,7 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
+// /controllers/productController.js
 export const getProducts = async (req, res) => {
   try {
     const {
@@ -36,6 +37,7 @@ export const getProducts = async (req, res) => {
 
     const filter = {};
 
+    // Category filtering
     if (category) {
       const categoryDoc = await Category.findOne({ name: category });
       if (!categoryDoc) {
@@ -52,18 +54,22 @@ export const getProducts = async (req, res) => {
       filter.category = categoryDoc._id;
     }
 
+    // Tag filtering
     if (tags) {
       filter.tag = tags;
     }
 
+    // Search filtering by name
     if (search) {
-      filter.name = { $regex: search, $options: "i" };
+      filter.name = { $regex: search, $options: "i" }; // Case-insensitive search
     }
 
     const skip = (page - 1) * limit;
 
+    // Fetch all filtered products for in-memory sorting
     let products = await Product.find(filter).populate("category").lean();
 
+    // Apply sorting based on price/discountedPrice
     if (sort === "price_asc") {
       products.sort((a, b) => {
         const aPrice = a.discountedPrice ?? a.price;
@@ -72,14 +78,15 @@ export const getProducts = async (req, res) => {
       });
     } else if (sort === "price_desc") {
       products.sort((a, b) => {
-        const aPrice = b.discountedPrice ?? b.price;
-        const bPrice = a.discountedPrice ?? a.price;
-        return aPrice - bPrice;
+        const aPrice = a.discountedPrice ?? a.price;
+        const bPrice = b.discountedPrice ?? b.price;
+        return bPrice - aPrice;
       });
     }
 
     const total = products.length;
 
+    // Paginate manually after sorting
     const paginatedProducts = products.slice(skip, skip + Number(limit));
 
     res.status(200).json({
@@ -95,23 +102,14 @@ export const getProducts = async (req, res) => {
 };
 
 export const createProduct = async (req, res) => {
-  const { name, description, price, media, discountedPrice, category, tags } =
+  const { name, description, price, image, discountedPrice, category, tags } =
     req.body;
   try {
-    if (!media || !Array.isArray(media) || media.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "At least one media item is required" });
-    }
-    const processedMedia = media.map((m) => ({
-      url: m.url,
-      type: m.type || "image",
-    }));
     const newProduct = new Product({
       name,
       description,
       price,
-      media: processedMedia,
+      image,
       discountedPrice,
       category,
       tag: tags || "New",
@@ -125,11 +123,12 @@ export const createProduct = async (req, res) => {
 };
 
 export const updateProduct = async (req, res) => {
-  const { name, description, price, media, discountedPrice, category, tag } =
+  const { name, description, price, image, discountedPrice, category, tag } =
     req.body;
 
   try {
     const product = await Product.findById(req.params.id);
+    console.log(product, "consoling the product");
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -138,11 +137,9 @@ export const updateProduct = async (req, res) => {
     product.description = description ?? product.description;
     product.price = price ?? product.price;
 
-    if (media !== undefined && !(Array.isArray(media) && media.length === 0)) {
-      product.media = media.map((m) => ({
-        url: m.url,
-        type: m.type || "image",
-      }));
+    // Handle image update only if image is not undefined or empty array
+    if (image !== undefined && !(Array.isArray(image) && image.length === 0)) {
+      product.image = image;
     }
 
     product.discountedPrice = discountedPrice ?? product.discountedPrice;
@@ -165,13 +162,16 @@ export const deleteProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
+    // Delete the product
     await product.deleteOne();
 
+    // Remove the product from all carts
     await Cart.updateMany(
       { "products.product": req.params.id },
       { $pull: { products: { product: req.params.id } } }
     );
 
+    // Remove the product from all wishlists
     await Wishlist.updateMany(
       { "products.product": req.params.id },
       { $pull: { products: { product: req.params.id } } }
