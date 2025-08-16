@@ -25,6 +25,28 @@ const dummyProducts = [
   },
 ];
 
+const NewDummyData = {
+  0
+    : {
+    category
+      :
+      { _id: '686a1bc15f14a2d10d1816aa', name: 'Home and Kitchen improvements', description: 'Improve and organise your home and kitchen', createdAt: '2025-07-06T06:46:25.159Z', updatedAt: '2025-07-29T16:45:20.531Z' },
+    description
+      :
+      "Elevate your interiors with vintage-inspired masterpieces that blend timeless design with classic luxury.",
+    image
+      :
+    {
+      0
+        :
+        "https://res.cloudinary.com/dysvhtqxi/image/upload/v1753266424/k0oenju1edbqhwa0crfj.png",
+      1
+        :
+        "https://res.cloudinary.com/dysvhtqxi/image/upload/v1753266425/ogbi2ekjp2474sdp1tho.jpg"
+    },
+  }
+}
+
 const Header = () => {
   const [products, setProducts] = useState([]);
   const [index, setIndex] = useState(0);
@@ -41,7 +63,6 @@ const Header = () => {
 
   useEffect(() => {
     if (products.length === 0) return;
-
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % products.length);
     }, 5000);

@@ -71,18 +71,21 @@ export const getProducts = async (req, res) => {
 
     // Apply sorting based on price/discountedPrice
     if (sort === "price_asc") {
-      products.sort((a, b) => {
-        const aPrice = a.discountedPrice ?? a.price;
-        const bPrice = b.discountedPrice ?? b.price;
-        return aPrice - bPrice;
-      });
-    } else if (sort === "price_desc") {
-      products.sort((a, b) => {
-        const aPrice = a.discountedPrice ?? a.price;
-        const bPrice = b.discountedPrice ?? b.price;
-        return bPrice - aPrice;
-      });
-    }
+  products.sort((a, b) => {
+    const aPrice = a.discountedPrice ?? a.price;
+    const bPrice = b.discountedPrice ?? b.price;
+    return aPrice - bPrice;
+  });
+} else if (sort === "price_desc") {
+  products.sort((a, b) => {
+    const aPrice = a.discountedPrice ?? a.price;
+    const bPrice = b.discountedPrice ?? b.price;
+    return bPrice - aPrice;
+  });
+} else if (sort === "latest") {
+  // Sort by createdAt (descending)
+  products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}
 
     const total = products.length;
 

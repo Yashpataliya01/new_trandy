@@ -19,8 +19,8 @@ const ProductShowcase = ({ title, id }) => {
       ? { tags: title, limit: 6, page: 1 }
       : id
       ? { id, limit: 6, page: 1 }
-      : { category: title, limit: 6, page: 1 };
-
+      : { category: title, limit: 6, page: 1, sort: "latest" };
+      
   const { data, error, isLoading } = useGetProductsQuery(queryParams);
   const products = data?.products || [];
 
@@ -68,12 +68,21 @@ const ProductShowcase = ({ title, id }) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-12 h-12 border-4 border-t-4 border-gray-200 border-t-gray-900 rounded-full"
+        ></motion.div>
+        <span className="ml-4 text-xl text-gray-900">Loading...</span>
+      </div>
+    );
+  }
+
   return (
     <>
-      {/* <style>{`
-        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap");
-      `}</style> */}
-
       <div className="pb-16">
         <div className="mx-auto flex justify-center flex-col items-center">
           {/* Section Heading */}

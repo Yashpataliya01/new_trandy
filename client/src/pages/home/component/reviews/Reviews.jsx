@@ -28,8 +28,7 @@ const reviews = [
 const CustomerReviews = () => (
   <section className="relative px-6 py-24 bg-transparent">
     <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-200 -z-10" />
-
-    <div className="max-w-5xl mx-auto text-center mb-14">
+        <div className="max-w-5xl mx-auto text-center mb-14">
       <motion.h2
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
